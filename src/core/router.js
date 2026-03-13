@@ -23,6 +23,9 @@ const Router = (() => {
     'screen-battlepass':    { label: 'Sezon Geçişi',        noAd: false, init: 'renderBattlePass' },
     'screen-collection':    { label: 'Koleksiyon',          noAd: false, init: 'renderCollection' },
     'screen-bot-difficulty':{ label: 'Zorluk Seç',          noAd: true,  init: 'initDifficultyScreen' },
+    'screen-gifts':         { label: 'Hediyeler',            noAd: false, init: 'renderGiftsContent'  },
+    'screen-player-profile':{ label: 'Oyuncu Profili',       noAd: true,  init: null                  },
+    'screen-word-meaning':  { label: 'Kelime Anlamı',        noAd: false, init: 'renderWordMeaningScreen' },
   };
 
   // Ad banner map
