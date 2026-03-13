@@ -2,6 +2,7 @@
   "name": "SonHarf - Kelime Zinciri",
   "short_name": "SonHarf",
   "description": "Türkçe kelime zinciri oyunu — son harften başla!",
+  "id": "com.mustbertan.sonharf",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -61,10 +62,53 @@
   ],
   "screenshots": [
     {
-      "src": "/icons/screenshot-mobile.png",
+      "src": "/icons/screenshot1.png",
       "sizes": "390x844",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Ana Menü"
+    },
+    {
+      "src": "/icons/screenshot2.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Online Eşleşme"
+    },
+    {
+      "src": "/icons/screenshot3.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Oyun İçi"
+    },
+    {
+      "src": "/icons/screenshot4.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Sonuç Ekranı"
+    },
+    {
+      "src": "/icons/screenshot5.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Liderboard"
+    },
+    {
+      "src": "/icons/screenshot6.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Profil"
+    },
+    {
+      "src": "/icons/screenshot7.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mağaza"
     }
   ],
   "categories": ["games", "entertainment"],
