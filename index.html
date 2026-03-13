@@ -1862,36 +1862,112 @@ const WORD_DICT = new Set([
   'ağırlık','belirginlik','bütünlük','çeşitlilik','dönüşüm','erişim','güvenilirlik',
   'hazırlık','iyimserlik','kaygısızlık','liderlik','meraklılık','neşe','olgunluk',
   'özveri','paylaşım','rahatlık','saygınlık','tarafsızlık','umursamazlık','verimlilik',
+  // Hayvanlar
+  'kedi','köpek','kuş','balık','inek','keçi','koyun','tavuk','ördek','kaz','eşek',
+  'kaplan','kurt','tilki','geyik','tavşan','fare','maymun','fil','zürafa','leopar',
+  'kartal','baykuş','papağan','güvercin','kırlangıç','martı','flamingo',
+  'yılan','timsah','kaplumbağa','kurbağa','ahtapot','yunus','balina',
+  // Doğa
+  'kar','bulut','gökyüzü','kök','orman','ırmak','kum','çimen','tarla',
+  'kasırga','deprem','volkan','şelale','buzul','çöl','bataklık',
+  // Ev eşyaları
+  'oda','tavan','merdiven','koltuk','yatak','dolap','lamba','perde',
+  'sandalye','lavabo','banyo','salon','koridor','çatı',
+  'çekiç','tornavida','vida','çivi','kilit',
+  // Yiyecek içecek
+  'çay','kahve','süt','yoğurt','peynir','zeytin','bal','reçel','tereyağı',
+  'muz','kiraz','çilek','karpuz','şeftali','kayısı','incir',
+  'domates','salatalık','biber','soğan','sarımsak','patates','havuç','patlıcan',
+  'pilav','makarna','börek','kebap','döner','lahmacun','pide','simit',
+  'pasta','kek','kurabiye','dondurma','çikolata','baklava',
+  // Ulaşım
+  'otobüs','tren','uçak','gemi','bisiklet','motosiklet','kamyon','taksi','metro','tramvay',
+  // Giysi aksesuar
+  'gömlek','pantolon','etek','elbise','palto','mont','ayakkabı','şapka','eldiven',
+  'kravat','kemer','gözlük','yüzük','kolye','küpe','bileklik',
+  // Aile
+  'kardeş','abla','abi','nine','teyze','amca','hala','dayı','gelin','damat','torun',
+  // Zaman
+  'sabah','öğle','akşam','hafta','ilkbahar','sonbahar','saniye','mevsim',
+  'pazartesi','salı','çarşamba','perşembe','cuma','cumartesi','pazar',
+  'ocak','şubat','mart','nisan','mayıs','haziran','temmuz','ağustos','eylül','ekim','kasım','aralık',
+  // Renkler
+  'kırmızı','mavi','yeşil','sarı','siyah','beyaz','turuncu','pembe','kahve','gri','lacivert','bej',
+  // Sıfatlar
+  'uzun','kısa','geniş','dar','ağır','hafif','yeni','güzel','çirkin','hızlı','yavaş',
+  'kolay','doğru','yanlış','zengin','fakir','akıllı','cesur','korkak','nazik','kaba',
+  // Meslekler
+  'doktor','mühendis','avukat','polis','asker','pilot','aktör','şarkıcı',
+  'gazeteci','ressam','mimar','eczacı','veteriner','berber','terzi','şoför',
+  // Eğitim
+  'sınıf','öğrenci','diploma','üniversite','fakülte','burs','proje',
+  // Sağlık
+  'hastane','ameliyat','muayene','röntgen','tansiyon','diyabet','alerji','vitamin','tedavi',
+  // Teknoloji
+  'yazılım','donanım','ekran','klavye','kamera','şarj',
+  // Spor
+  'futbol','basketbol','voleybol','tenis','yüzme','jimnastik','turnuva','kupa',
+  // Sanat eğlence
+  'konser','sergi','müze','heykel','masal',
+  // Duygular
+  'üzüntü','korku','sevgi','nefret','öfke','şaşkınlık','gurur','utanç',
+  // Soyut
+  'sorumluluk','özgürlük','adalet','barış','demokrasi','kültür','medeniyet','ekonomi','strateji',
+  // Ek fiil kökleri
+  'bakım','gelişme','izleme','kazanım','kullanım','satış','üretim',
 ]);
 
 // TDK API doğrulama önbelleği
 const wordCache = new Map(); // kelime → true/false
 
-// TDK API CORS Proxy — allorigins.win (ücretsiz, kayıt gerektirmez)
-const TDK_PROXY = 'https://api.allorigins.win/get?url=';
-const TDK_URL = (word) => `https://sozluk.gov.tr/gts?ara=${encodeURIComponent(word)}`;
+/* ═══════════════════════════════════════════
+   KELİME DOĞRULAMA — Netlify Serverless Proxy
+   Kendi sunucumuz TDK'ya sorar → CORS yok, güvenilir
+═══════════════════════════════════════════ */
+
+// Netlify function endpoint — aynı domain, CORS sorunu yok
+const KELIME_API = '/api/kelime';
+
+// TDK önbelleği — aynı kelimeyi tekrar sorma
+const wordCache = new Map();
 
 async function checkWordTDK(word) {
-  // 1. Offline listede var mı?
+  // 1. Offline listede var mı? → anında kabul (yaygın kelimeler)
   if (WORD_DICT.has(word)) return { valid: true, source: 'offline' };
 
-  // 2. Önbellekte var mı?
+  // 2. Önbellekte var mı? → tekrar sorma
   if (wordCache.has(word)) return { valid: wordCache.get(word), source: 'cache' };
 
-  // 3. TDK API'ye sor
+  // 3. Netlify function üzerinden TDK'ya sor
   try {
-    const proxyUrl = TDK_PROXY + encodeURIComponent(TDK_URL(word));
-    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(4000) });
+    const res = await fetch(`${KELIME_API}?w=${encodeURIComponent(word)}`, {
+      signal: AbortSignal.timeout(6000),
+    });
+
     const data = await res.json();
-    const parsed = JSON.parse(data.contents);
-    // TDK: geçerli kelimeler array döner, geçersiz {error:...}
-    const isValid = Array.isArray(parsed) && parsed.length > 0 && !parsed[0]?.error;
-    wordCache.set(word, isValid);
-    return { valid: isValid, source: 'tdk' };
+
+    // valid: true  → TDK'da var
+    // valid: false → TDK'da yok
+    // valid: null  → TDK erişilemedi → offline listeye düş
+    if (data.valid === null) {
+      // Sunucu erişilemedi — offline listede yoksa reddet
+      wordCache.set(word, false);
+      return { valid: false, source: 'server_error' };
+    }
+
+    wordCache.set(word, data.valid);
+    return { valid: data.valid, source: data.source || 'tdk' };
+
   } catch(e) {
-    // API erişilemiyorsa şüpheli kabul et (oyun kesilmesin)
-    wordCache.set(word, true);
-    return { valid: true, source: 'fallback' };
+    // Ağ hatası (offline mod, Netlify yoksa vs.)
+    // Yerel geliştirme / test: offline listeyle yetinelim
+    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (isLocal) {
+      // Local'de çalışıyorsa offline listeyi kullan
+      return { valid: false, source: 'local_offline' };
+    }
+    wordCache.set(word, false);
+    return { valid: false, source: 'network_error' };
   }
 }
 
@@ -3213,10 +3289,10 @@ async function submitWord() {
   input.disabled = false;
   document.getElementById('submit-btn').disabled = false;
 
-  processWord(word, player, result.valid);
+  processWord(word, player, result.valid, result.source);
 }
 
-function processWord(word, player, isKnownValid) {
+function processWord(word, player, isKnownValid, validSource) {
   const lastChar = game.currentWord.slice(-1).toLowerCase();
   const input = document.getElementById('word-input');
 
@@ -3227,7 +3303,9 @@ function processWord(word, player, isKnownValid) {
     haptic.error();
     input.classList.add('error');
     setTimeout(() => input.classList.remove('error'), 600);
-    document.getElementById('word-status-text').textContent = `❌ "${word}" TDK sözlüğünde yok!`;
+    document.getElementById('word-status-text').textContent = 
+      validSource === 'offline' ? `❌ "${word}" kelime listesinde yok!` :
+      `❌ "${word}" TDK sözlüğünde bulunamadı!`;
     addGameChat(`❌ ${player.name}: "${word}" geçersiz!`);
     if (game.shieldActive && player.isMe) {
       game.shieldActive = false;
