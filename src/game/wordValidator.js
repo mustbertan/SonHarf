@@ -55,6 +55,12 @@ const WordValidator = (() => {
 
       // valid: true = geçerli, false = geçersiz, null = sunucu hatası
       if (data.valid === null) return { valid: false, source: 'server_error' };
+
+      // TDK'dan geçen kelimeyi offline sözlüğe kaydet
+      if (data.valid === true && window.addToOfflineDict) {
+        try { window.addToOfflineDict(w); } catch {}
+      }
+
       return { valid: data.valid, source: data.source || 'tdk' };
 
     } catch (e) {
