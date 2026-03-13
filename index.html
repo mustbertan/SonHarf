@@ -22,744 +22,19 @@
 <!-- Google AdMob -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-3435583893744093~4313441911" crossorigin="anonymous"></script>
 
-<!-- Fonts: Clash Display (geometric) + Plus Jakarta Sans -->
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 
-<style>
-/* ─────────────────────────────────────────
-   CSS VARIABLES
-───────────────────────────────────────── */
-:root {
-  --p:#6C63FF; --p2:#8B83FF; --p-dark:#4A42CC; --p-glow:rgba(108,99,255,.35);
-  --acc:#FF6B6B; --acc2:#FFB347; --acc3:#4ECDC4; --acc4:#A8E6CF;
-  --bg:#0D0D1A; --bg2:#12122A; --bg3:#1A1A35;
-  --card:#1E1E3F; --card2:#252550; --border:rgba(108,99,255,.25);
-  --text:#E8E8FF; --muted:#7878AA; --dim:#4A4A7A;
-  --gold:#FFD700; --silver:#C0C0C0; --bronze:#CD7F32;
-  --shadow-p:0 0 24px rgba(108,99,255,.4);
-  --r:16px; --r2:12px;
-}
+<!-- CSS Modülleri -->
+<link rel="stylesheet" href="/styles/core.css">
+<link rel="stylesheet" href="/styles/components.css">
+<link rel="stylesheet" href="/styles/game.css">
+<link rel="stylesheet" href="/styles/systems.css">
 
-/* ─── GLOBAL FONT SCALE — same trick as ClashVault ─── */
-html { font-size: clamp(14px, 4vw, 18px); }
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-html, body {
-  height:100%; width:100%; overflow:hidden;
-  touch-action:none; -ms-touch-action:none;
-  -webkit-user-select:none; user-select:none;
-}
-body {
-  font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text);
-  background-image:
-    radial-gradient(ellipse at 15% 10%, rgba(108,99,255,.12) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 90%, rgba(255,107,107,.07) 0%, transparent 55%);
-}
-body::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background-image:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%236C63FF' fill-opacity='0.025'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* ─────────────────────────────────────────
-   APP SHELL
-───────────────────────────────────────── */
-#app {
-  width:100%; max-width:480px; margin:0 auto;
-  height:100vh; height:100dvh;
-  position:relative; z-index:1;
-  display:flex; flex-direction:column; overflow:hidden;
-}
-.screen { display:none; flex-direction:column; flex:1; overflow:hidden; animation:fadeIn .22s ease; }
-.screen.active { display:flex; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-
-/* ─────────────────────────────────────────
-   SCROLL CONTENT
-───────────────────────────────────────── */
-.scroll-content {
-  flex:1; overflow-y:auto; padding-bottom:16px;
-  scrollbar-width:thin; scrollbar-color:var(--card2) transparent;
-  -webkit-overflow-scrolling:touch;
-}
-.scroll-content::-webkit-scrollbar { width:3px; }
-.scroll-content::-webkit-scrollbar-thumb { background:var(--card2); border-radius:2px; }
-
-/* ─────────────────────────────────────────
-   TOPBAR
-───────────────────────────────────────── */
-.topbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0.5rem 0.75rem 0.35rem; flex-shrink:0; position:sticky; top:0; z-index:50;
-  background:linear-gradient(to bottom, var(--bg) 85%, transparent);
-}
-.topbar-logo {
-  font-family:'Syne',sans-serif; font-size:1.364rem; font-weight:800;
-  color:var(--p2); letter-spacing:-1px;
-}
-.topbar-logo span { color:var(--acc); }
-.topbar-actions { display:flex; gap:0.5rem; }
-.icon-btn {
-  width:2.25rem; height:2.25rem; border-radius:0.5rem;
-  border:1.5px solid var(--border); background:var(--card);
-  color:var(--p2); display:flex; align-items:center; justify-content:center;
-  cursor:pointer; font-size:1.136rem; transition:all .18s;
-}
-.icon-btn:hover { background:var(--card2); border-color:var(--p); }
-.back-btn {
-  width:2.25rem; height:2.25rem; border-radius:0.5rem;
-  border:1.5px solid var(--border); background:var(--card);
-  color:var(--text); display:flex; align-items:center; justify-content:center;
-  cursor:pointer; font-size:1.25rem; font-weight:900; transition:all .18s;
-}
-
-/* ─────────────────────────────────────────
-   NAVBAR
-───────────────────────────────────────── */
-.navbar {
-  display:flex; justify-content:space-around;
-  padding:0.3rem 0.5rem 0.6rem; background:var(--bg2);
-  border-top:1.5px solid var(--border); flex-shrink:0;
-}
-.nav-item { display:flex; flex-direction:column; align-items:center; gap:0.182rem; cursor:pointer; padding:0.318rem 0.386rem; border-radius:0.75rem; transition:all .18s; flex:1; min-width:0; }
-.nav-item:hover,.nav-item.active { background:rgba(108,99,255,.12); }
-.nav-icon { font-size:1.364rem; transition:transform .18s; }
-.nav-item.active .nav-icon { transform:scale(1.18); filter:drop-shadow(0 0 5px rgba(108,99,255,.7)); }
-.nav-label { font-size:0.614rem; font-weight:800; color:var(--muted); letter-spacing:.2px; }
-.nav-item.active .nav-label { color:var(--p2); }
-
-/* ─────────────────────────────────────────
-   LOADING OVERLAY
-───────────────────────────────────────── */
-#loading-overlay {
-  position:fixed; inset:0; z-index:9000;
-  background:var(--bg); display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:0.55rem;
-  opacity:0; pointer-events:none; transition:opacity .22s;
-}
-#loading-overlay.show { opacity:1; pointer-events:all; }
-.loading-spinner {
-  width:1.875rem; height:1.875rem; border-radius:50%;
-  border:3px solid var(--border); border-top-color:var(--p);
-  animation:spin .7s linear infinite;
-}
-@keyframes spin { to{transform:rotate(360deg)} }
-.loading-logo { font-family:'Syne',sans-serif; font-size:1.818rem; font-weight:800; color:var(--p2); }
-.loading-logo span { color:var(--acc); }
-#loading-msg-text { font-size:0.864rem; color:var(--muted); font-weight:700; }
-
-/* ─────────────────────────────────────────
-   TOAST
-───────────────────────────────────────── */
-.toast {
-  position:fixed; bottom:5.227rem; left:50%; transform:translateX(-50%) translateY(1.25rem);
-  background:var(--card2); border:1.5px solid var(--border);
-  color:var(--text); font-size:0.795rem; font-weight:700;
-  padding:0.614rem 1.25rem; border-radius:1.25rem;
-  opacity:0; transition:all .28s; z-index:9998; pointer-events:none;
-  white-space:nowrap; box-shadow:0 6px 24px rgba(0,0,0,.5);
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* ─────────────────────────────────────────
-   INTERSTITIAL AD OVERLAY
-───────────────────────────────────────── */
-.ad-interstitial-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,.97); z-index:9500;
-  display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity .3s;
-}
-.ad-interstitial-overlay.open { opacity:1; pointer-events:all; }
-.ad-interstitial-topbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0.55rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.1);
-}
-.ad-interstitial-label { font-size:0.864rem; color:var(--muted); font-weight:700; }
-.ad-close-btn {
-  font-size:1rem; color:var(--text); font-weight:900; cursor:pointer;
-  background:var(--card); border:1px solid var(--border); border-radius:0.75rem;
-  padding:0.386rem 1rem; display:flex; align-items:center; gap:0.386rem;
-}
-.ad-close-btn.disabled { opacity:.4; pointer-events:none; }
-.ad-interstitial-body { flex:1; display:flex; align-items:center; justify-content:center; }
-.ad-inline {
-  margin:0.75rem 1rem; text-align:center;
-  min-height:60px; border-radius:0.75rem; overflow:hidden;
-  border:1px solid rgba(108,99,255,.1);
-}
-.ad-label { font-size:0.636rem; color:var(--dim); text-align:center; padding:0.227rem 0 0.114rem; letter-spacing:.5px; text-transform:uppercase; }
-
-/* ─────────────────────────────────────────
-   CARDS
-───────────────────────────────────────── */
-.card {
-  background:var(--card); border-radius:var(--r); border:1.5px solid var(--border);
-  padding:0.55rem 1.136rem; transition:all .2s;
-}
-.card:hover { border-color:var(--p); }
-.card-glass {
-  background:rgba(30,30,63,.7); backdrop-filter:blur(12px);
-  border-radius:var(--r); border:1.5px solid var(--border); padding:0.55rem 1.136rem;
-}
-
-/* ─────────────────────────────────────────
-   SECTION HEADER
-───────────────────────────────────────── */
-.section-head { display:flex; align-items:center; justify-content:space-between; padding:0 1rem; margin-bottom:0.75rem; }
-.section-title {
-  font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; color:var(--p2);
-  display:flex; align-items:center; gap:0.5rem;
-}
-.section-title::before { content:''; display:block; width:3px; height:1.136rem; background:var(--p); border-radius:2px; }
-.see-all { font-size:0.864rem; color:var(--muted); cursor:pointer; font-weight:700; }
-.see-all:hover { color:var(--p2); }
-
-/* ─────────────────────────────────────────
-   BUTTONS
-───────────────────────────────────────── */
-.btn {
-  display:flex; align-items:center; justify-content:center; gap:0.5rem;
-  padding:0.5rem 1rem; border-radius:0.5rem; border:none; cursor:pointer;
-  font-family:'Nunito',sans-serif; font-size:1rem; font-weight:800;
-  transition:all .18s; outline:none;
-}
-.btn-primary { background:linear-gradient(135deg,var(--p),var(--p-dark)); color:#fff; box-shadow:0 4px 16px var(--p-glow); }
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px var(--p-glow); }
-.btn-secondary { background:var(--card2); color:var(--text); border:1.5px solid var(--border); }
-.btn-secondary:hover { border-color:var(--p); background:var(--card); }
-.btn-danger { background:linear-gradient(135deg,var(--acc),#cc4444); color:#fff; }
-.btn-gold { background:linear-gradient(135deg,var(--gold),#cc9900); color:#000; }
-.btn-lg { padding:0.65rem 1.25rem; font-size:1rem; border-radius:0.6rem; }
-.btn-sm { padding:0.5rem 1rem; font-size:0.864rem; border-radius:0.75rem; }
-.btn-full { width:100%; }
-
-/* ─────────────────────────────────────────
-   PILL TAGS
-───────────────────────────────────────── */
-.pill-tag {
-  display:inline-flex; align-items:center; gap:0.227rem;
-  padding:0.318rem 0.75rem; border-radius:1rem; font-size:0.75rem; font-weight:700;
-}
-.pill-p { background:rgba(108,99,255,.2); color:var(--p2); border:1px solid rgba(108,99,255,.3); }
-.pill-gold { background:rgba(255,215,0,.2); color:var(--gold); border:1px solid rgba(255,215,0,.3); }
-.pill-acc { background:rgba(255,107,107,.2); color:var(--acc); border:1px solid rgba(255,107,107,.3); }
-.pill-green { background:rgba(78,205,196,.2); color:var(--acc3); border:1px solid rgba(78,205,196,.3); }
-
-/* ─────────────────────────────────────────
-   INPUT
-───────────────────────────────────────── */
-.input {
-  width:100%; padding:0.864rem 1.136rem; border-radius:1rem;
-  border:1.5px solid var(--border); background:var(--bg3);
-  color:var(--text); font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700;
-  outline:none; transition:border-color .18s;
-  -webkit-user-select:text; user-select:text;
-}
-.input:focus { border-color:var(--p); box-shadow:0 0 0 3px var(--p-glow); }
-.input::placeholder { color:var(--dim); }
-.input-label { font-size:0.818rem; font-weight:800; color:var(--muted); margin-bottom:0.318rem; display:block; }
-
-/* ─────────────────────────────────────────
-   AVATAR GRID
-───────────────────────────────────────── */
-.avatar-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:0.5rem; }
-.avatar-opt {
-  aspect-ratio:1; border-radius:0.864rem; display:flex; align-items:center; justify-content:center;
-  font-size:1.591rem; cursor:pointer; border:2px solid transparent;
-  background:var(--bg3); transition:all .18s;
-}
-.avatar-opt.selected { border-color:var(--p); background:rgba(108,99,255,.15); box-shadow:0 0 12px var(--p-glow); }
-.avatar-opt:hover { border-color:var(--p-dark); }
-
-/* ─────────────────────────────────────────
-   RANK BADGES
-───────────────────────────────────────── */
-.rank-badge {
-  display:inline-flex; align-items:center; gap:0.227rem;
-  padding:0.273rem 0.636rem; border-radius:0.75rem; font-size:0.727rem; font-weight:800;
-}
-.rank-bronze   { background:rgba(205,127,50,.2);  color:var(--bronze); border:1px solid var(--bronze); }
-.rank-silver   { background:rgba(192,192,192,.15); color:var(--silver); border:1px solid var(--silver); }
-.rank-gold     { background:rgba(255,215,0,.2);    color:var(--gold);   border:1px solid var(--gold); }
-.rank-platinum { background:rgba(78,205,196,.2);   color:var(--acc3);   border:1px solid var(--acc3); }
-.rank-diamond  { background:rgba(108,99,255,.25);  color:var(--p2);     border:1px solid var(--p); }
-.rank-master   { background:rgba(255,107,107,.2);  color:var(--acc);    border:1px solid var(--acc); }
-
-/* ─────────────────────────────────────────
-   COUNTRY FLAG HELPERS
-───────────────────────────────────────── */
-.flag { font-size:1.25rem; }
-
-/* ─────────────────────────────────────────
-   MODAL / BOTTOM SHEET
-───────────────────────────────────────── */
-.modal-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:8000;
-  display:flex; align-items:flex-end; justify-content:center;
-  opacity:0; pointer-events:none; transition:opacity .25s;
-}
-.modal-overlay.open { opacity:1; pointer-events:all; }
-.modal-sheet {
-  width:100%; max-width:480px; background:var(--bg2); border-radius:1.5rem 2.727rem 0 0;
-  border:1.5px solid var(--border); border-bottom:none;
-  padding:0.825rem 1.25rem 2.727rem;
-  transform:translateY(100%); transition:transform .28s ease;
-  max-height:85vh; overflow-y:auto;
-}
-.modal-overlay.open .modal-sheet { transform:translateY(0); }
-.modal-handle { width:2.5rem; height:0.409rem; background:var(--dim); border-radius:1.25rem; margin:0 auto 1rem; }
-.modal-title { font-family:'Syne',sans-serif; font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:0.55rem; text-align:center; }
-
-/* ─────────────────────────────────────────
-   PROGRESS BAR
-───────────────────────────────────────── */
-.prog-bar { background:var(--bg3); border-radius:1.25rem; height:0.5rem; overflow:hidden; }
-.prog-fill { height:100%; border-radius:1.25rem; background:linear-gradient(90deg,var(--p),var(--p2)); transition:width .6s ease; }
-.prog-fill.gold { background:linear-gradient(90deg,var(--gold),var(--acc2)); }
-.prog-fill.green { background:linear-gradient(90deg,var(--acc3),var(--acc4)); }
-.prog-fill.red { background:linear-gradient(90deg,var(--acc),#ff9999); }
-
-/* ─────────────────────────────────────────
-   EMPTY STATE
-───────────────────────────────────────── */
-.empty-state { text-align:center; padding:1.875rem 1rem; }
-.empty-icon { font-size:3.409rem; margin-bottom:0.75rem; }
-.empty-title { font-size:1.136rem; font-weight:800; color:var(--muted); margin-bottom:0.386rem; }
-.empty-sub { font-size:0.864rem; color:var(--dim); }
-
-/* ─────────────────────────────────────────
-   DIVIDER
-───────────────────────────────────────── */
-.divider { height:1px; background:var(--border); margin:0.75rem 0; }
-
-/* ─────────────────────────────────────────
-   NOTIFICATION DOT
-───────────────────────────────────────── */
-.notif-dot { width:0.636rem; height:0.636rem; border-radius:50%; background:var(--acc); position:absolute; top:0.227rem; right:0.227rem; }
-
-/* ─────────────────────────────────────────
-   COIN / GEM display
-───────────────────────────────────────── */
-.currency-chip {
-  display:inline-flex; align-items:center; gap:0.273rem;
-  padding:0.273rem 0.682rem; border-radius:0.75rem;
-  font-size:0.818rem; font-weight:800;
-  background:rgba(255,215,0,.1); color:var(--gold); border:1px solid rgba(255,215,0,.25);
-}
-.gem-chip {
-  display:inline-flex; align-items:center; gap:0.273rem;
-  padding:0.273rem 0.682rem; border-radius:0.75rem;
-  font-size:0.818rem; font-weight:800;
-  background:rgba(78,205,196,.1); color:var(--acc3); border:1px solid rgba(78,205,196,.25);
-}
-
-/* ─────────────────────────────────────────
-   POWERUP BUTTON
-───────────────────────────────────────── */
-.powerup-btn {
-  display:flex; flex-direction:column; align-items:center; gap:0.182rem;
-  width:1.663rem; padding:0.5rem 0.227rem; border-radius:0.864rem;
-  border:1.5px solid var(--border); background:var(--card);
-  cursor:pointer; transition:all .18s; position:relative;
-}
-.powerup-btn.active { border-color:var(--p2); background:rgba(108,99,255,.15); }
-.powerup-btn:hover { border-color:var(--p); transform:translateY(-2px); }
-.powerup-btn.used { opacity:.4; pointer-events:none; }
-.powerup-icon { font-size:1.136rem; }
-.powerup-count {
-  position:absolute; top:-0.455rem; right:-0.455rem;
-  background:var(--acc); color:#fff; font-size:0.636rem; font-weight:900;
-  width:0.864rem; height:0.864rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
-}
-.powerup-label { font-size:0.614rem; color:var(--muted); font-weight:700; text-align:center; line-height:1.1; }
-
-/* ─────────────────────────────────────────
-   CHAT
-───────────────────────────────────────── */
-.chat-bubble {
-  margin-bottom:0.5rem; display:flex; gap:0.5rem; align-items:flex-start;
-}
-.chat-bubble.mine { flex-direction:row-reverse; }
-.chat-avatar { width:1.25rem; height:1.25rem; border-radius:0.636rem; display:flex; align-items:center; justify-content:center; font-size:1.136rem; background:var(--bg3); flex-shrink:0; }
-.chat-msg { background:var(--card); border-radius:1.136rem 1.136rem 1.136rem 0.273rem; padding:0.5rem 0.75rem; max-width:75%; }
-.chat-bubble.mine .chat-msg { background:rgba(108,99,255,.25); border-radius:1.136rem 1.136rem 0.273rem 1.136rem; }
-.chat-name { font-size:0.636rem; color:var(--muted); font-weight:700; margin-bottom:0.114rem; }
-.chat-text { font-size:0.818rem; color:var(--text); font-weight:600; line-height:1.3; }
-.chat-time { font-size:0.591rem; color:var(--dim); margin-top:0.114rem; }
-.chat-input-row {
-  display:flex; gap:0.5rem; padding:0.636rem 1rem; flex-shrink:0;
-  background:var(--bg2); border-top:1.5px solid var(--border);
-}
-.chat-input {
-  flex:1; padding:0.682rem 1rem; border-radius:1rem;
-  border:1.5px solid var(--border); background:var(--bg3);
-  color:var(--text); font-family:'Nunito',sans-serif; font-size:0.909rem; font-weight:600;
-  outline:none; transition:border-color .18s;
-  -webkit-user-select:text; user-select:text;
-}
-.chat-input:focus { border-color:var(--p); }
-.chat-send { padding:0.682rem 1rem; border-radius:1rem; border:none; background:var(--p); color:#fff; font-size:1rem; cursor:pointer; }
-
-/* ─────────────────────────────────────────
-   PLAYER LIST IN GAME
-───────────────────────────────────────── */
-.player-row {
-  display:flex; align-items:center; gap:0.636rem; padding:0.5rem 0.75rem;
-  border-radius:1rem; transition:background .18s;
-}
-.player-row.active-turn { background:rgba(108,99,255,.15); border:1px solid rgba(108,99,255,.3); }
-.player-row.eliminated { opacity:.45; }
-.player-avatar { width:1.375rem; height:1.375rem; border-radius:0.636rem; display:flex; align-items:center; justify-content:center; font-size:1.25rem; background:var(--bg3); flex-shrink:0; position:relative; }
-.player-avatar .turn-ring { position:absolute; inset:-0.227rem; border-radius:0.75rem; border:2px solid var(--p); animation:pulseRing 1s ease-in-out infinite; }
-@keyframes pulseRing { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.08)} }
-.player-info { flex:1; min-width:0; }
-.player-name { font-size:0.864rem; font-weight:800; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.player-score { font-size:0.682rem; font-weight:700; color:var(--muted); }
-.player-score .pts { color:var(--p2); font-weight:900; }
-.player-status { display:flex; align-items:center; }
-
-/* ─────────────────────────────────────────
-   TIMER RING
-───────────────────────────────────────── */
-.timer-ring-container { position:relative; display:inline-flex; align-items:center; justify-content:center; }
-.timer-ring-svg { transform:rotate(-90deg); }
-.timer-ring-bg { fill:none; stroke:var(--bg3); stroke-width:4; }
-.timer-ring-fill { fill:none; stroke:var(--p); stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset .9s linear, stroke .3s; }
-.timer-ring-fill.warn { stroke:var(--acc2); }
-.timer-ring-fill.danger { stroke:var(--acc); }
-.timer-text { position:absolute; font-family:'JetBrains Mono',monospace; font-size:1.591rem; font-weight:700; color:var(--text); }
-
-/* ─────────────────────────────────────────
-   WORD DISPLAY
-───────────────────────────────────────── */
-.word-display-card {
-  background:linear-gradient(135deg,var(--card),var(--bg3));
-  border:1.5px solid var(--border); border-radius:1.5rem;
-  padding:0.688rem 1.5rem; text-align:center; position:relative; overflow:hidden;
-}
-.word-display-card::after {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 0%, rgba(108,99,255,.1) 0%, transparent 70%);
-  pointer-events:none;
-}
-.word-label { font-size:0.75rem; font-weight:800; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:0.5rem; }
-.word-text { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; color:var(--text); letter-spacing:-1px; line-height:1; }
-.word-last-letter {
-  color:var(--acc); position:relative;
-  text-shadow:0 0 20px rgba(255,107,107,.6);
-}
-.word-chain-hint {
-  margin-top:0.386rem; font-size:0.864rem; color:var(--muted); font-weight:700;
-}
-.word-chain-hint span { color:var(--p2); font-weight:900; text-transform:uppercase; }
-
-/* ─────────────────────────────────────────
-   WORD INPUT AREA
-───────────────────────────────────────── */
-.word-input-area { padding:0.75rem 1rem 0.5rem; }
-.word-input-wrap { display:flex; gap:0.5rem; align-items:center; }
-.word-input {
-  flex:1; padding:0.864rem 1.25rem; border-radius:1.25rem;
-  border:2px solid var(--border); background:var(--bg3);
-  color:var(--text); font-family:'Syne',sans-serif;
-  font-size:1.364rem; font-weight:800; letter-spacing:-0.5px;
-  outline:none; transition:border-color .18s;
-  -webkit-user-select:text; user-select:text; text-transform:lowercase;
-}
-.word-input:focus { border-color:var(--p); box-shadow:0 0 0 4px var(--p-glow); }
-.word-input.error { border-color:var(--acc); animation:shake .35s ease; }
-.word-input.success { border-color:var(--acc3); box-shadow:0 0 0 4px rgba(78,205,196,.25); }
-@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-.submit-btn {
-  width:1.875rem; height:1.875rem; border-radius:1rem; border:none; flex-shrink:0;
-  background:linear-gradient(135deg,var(--p),var(--p-dark)); color:#fff;
-  font-size:1.591rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 4px 12px var(--p-glow); transition:all .18s;
-}
-.submit-btn:hover { transform:scale(1.06); }
-.submit-btn:disabled { opacity:.5; pointer-events:none; }
-
-/* ─────────────────────────────────────────
-   WORD HISTORY
-───────────────────────────────────────── */
-.word-history { display:flex; gap:0.386rem; flex-wrap:wrap; padding:0.5rem 1rem; }
-.hist-word {
-  padding:0.273rem 0.636rem; border-radius:0.75rem;
-  background:var(--bg3); border:1px solid var(--border);
-  font-size:0.795rem; font-weight:700; color:var(--muted);
-}
-.hist-word .hl { color:var(--p2); }
-
-/* ─────────────────────────────────────────
-   LEADERBOARD
-───────────────────────────────────────── */
-.lb-row {
-  display:flex; align-items:center; gap:0.636rem; padding:0.636rem 0.75rem;
-  border-radius:1rem; background:var(--card); margin-bottom:0.386rem;
-  border:1.5px solid var(--border);
-}
-.lb-row.top1 { border-color:var(--gold); background:rgba(255,215,0,.06); }
-.lb-row.top2 { border-color:var(--silver); background:rgba(192,192,192,.06); }
-.lb-row.top3 { border-color:var(--bronze); background:rgba(205,127,50,.06); }
-.lb-row.me { border-color:var(--p); background:rgba(108,99,255,.08); }
-.lb-rank { font-family:'JetBrains Mono',monospace; font-size:0.909rem; font-weight:700; color:var(--muted); width:1.25rem; text-align:center; flex-shrink:0; }
-.lb-avatar { font-size:1.364rem; flex-shrink:0; }
-.lb-info { flex:1; min-width:0; }
-.lb-name { font-size:0.864rem; font-weight:800; color:var(--text); }
-.lb-sub { font-size:0.682rem; color:var(--muted); font-weight:700; }
-.lb-score { font-family:'JetBrains Mono',monospace; font-size:0.955rem; font-weight:700; color:var(--p2); }
-
-/* ─────────────────────────────────────────
-   STORE CARDS
-───────────────────────────────────────── */
-.store-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.636rem; padding:0 1rem; }
-.store-card {
-  background:var(--card); border-radius:var(--r2); border:1.5px solid var(--border);
-  padding:0.864rem 0.75rem; text-align:center; cursor:pointer; transition:all .2s;
-  position:relative;
-}
-.store-card:hover { border-color:var(--p); transform:translateY(-2px); }
-.store-card.owned { border-color:var(--acc3); }
-.store-card-icon { font-size:2.273rem; margin-bottom:0.386rem; }
-.store-card-name { font-size:0.818rem; font-weight:800; color:var(--text); margin-bottom:0.273rem; line-height:1.2; }
-.store-card-price { display:inline-flex; align-items:center; gap:0.227rem; font-size:0.75rem; font-weight:800; color:var(--gold); }
-.store-card-owned { font-size:0.682rem; font-weight:800; color:var(--acc3); }
-.store-new-badge {
-  position:absolute; top:-0.341rem; right:-0.341rem;
-  background:var(--acc); color:#fff; font-size:0.591rem; font-weight:900;
-  padding:0.182rem 0.455rem; border-radius:0.5rem;
-}
-
-/* ─────────────────────────────────────────
-   QUEST CARDS
-───────────────────────────────────────── */
-.quest-card {
-  background:var(--card); border-radius:var(--r2); border:1.5px solid var(--border);
-  padding:0.75rem 1rem; margin-bottom:0.5rem;
-}
-.quest-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
-.quest-icon { font-size:1.5rem; }
-.quest-info { flex:1; }
-.quest-title { font-size:0.909rem; font-weight:800; color:var(--text); }
-.quest-sub { font-size:0.727rem; color:var(--muted); font-weight:700; }
-.quest-reward { display:flex; align-items:center; gap:0.227rem; font-size:0.818rem; font-weight:800; color:var(--gold); }
-.quest-complete { color:var(--acc3); }
-
-/* ─────────────────────────────────────────
-   RESULT SCREEN
-───────────────────────────────────────── */
-.result-confetti { position:fixed; inset:0; pointer-events:none; z-index:100; }
-.result-podium { text-align:center; padding:0.825rem 1rem; }
-.result-crown { font-size:2.727rem; margin-bottom:0.386rem; animation:bounce .6s ease infinite alternate; }
-@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-0.341rem)} }
-.result-winner { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--gold); }
-.result-sub { font-size:0.864rem; color:var(--muted); margin-top:0.227rem; }
-
-/* ─────────────────────────────────────────
-   ONBOARDING
-───────────────────────────────────────── */
-.onboard-hero {
-  text-align:center; padding:1.25rem 1.25rem 1.25rem;
-  background:radial-gradient(ellipse at 50% 30%, rgba(108,99,255,.2) 0%, transparent 65%);
-}
-.onboard-logo { font-family:'Syne',sans-serif; font-size:2.273rem; font-weight:800; color:var(--p2); margin-bottom:0.227rem; }
-.onboard-logo span { color:var(--acc); }
-.onboard-tagline { font-size:0.955rem; color:var(--muted); font-weight:700; }
-
-/* ─────────────────────────────────────────
-   HOME SCREEN
-───────────────────────────────────────── */
-.home-hero {
-  margin:0.25rem 1rem 1rem; border-radius:1.5rem;
-  background:linear-gradient(135deg,var(--card),var(--bg3),#1a1035);
-  border:1.5px solid var(--border); padding:0.688rem 1.25rem 1.136rem;
-  position:relative; overflow:hidden;
-}
-.home-hero::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 85% 50%, rgba(108,99,255,.15) 0%, transparent 60%);
-  pointer-events:none;
-}
-.home-hero-title { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--text); margin-bottom:0.273rem; }
-.home-hero-sub { font-size:0.864rem; color:var(--muted); margin-bottom:0.864rem; }
-.home-stats-row { display:flex; gap:0.75rem; }
-.home-stat { text-align:center; }
-.home-stat-val { font-family:'JetBrains Mono',monospace; font-size:1.25rem; font-weight:700; color:var(--p2); }
-.home-stat-lbl { font-size:0.659rem; color:var(--dim); font-weight:700; }
-
-.mode-cards { display:flex; flex-direction:column; gap:0.636rem; padding:0 1rem; }
-.mode-card {
-  border-radius:1.25rem; border:1.5px solid var(--border);
-  overflow:hidden; cursor:pointer; transition:all .22s;
-  display:flex; align-items:center; padding:0.55rem 1.136rem; gap:0.864rem;
-  background:var(--card); position:relative;
-}
-.mode-card:hover { border-color:var(--p); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.4),var(--shadow-p); }
-.mode-card-emoji { font-size:2.273rem; flex-shrink:0; }
-.mode-card-body { flex:1; }
-.mode-card-title { font-family:'Syne',sans-serif; font-size:1.136rem; font-weight:800; color:var(--text); margin-bottom:0.182rem; }
-.mode-card-sub { font-size:0.75rem; color:var(--muted); font-weight:700; }
-.mode-card-arrow { font-size:1.25rem; color:var(--muted); }
-.mode-card.featured { border-color:rgba(108,99,255,.5); background:linear-gradient(135deg,var(--card),rgba(108,99,255,.1)); }
-.mode-badge { position:absolute; top:0.75rem; right:1rem; }
-
-/* ─────────────────────────────────────────
-   ROOM SCREEN
-───────────────────────────────────────── */
-.room-code-display {
-  font-family:'JetBrains Mono',monospace; font-size:2rem; font-weight:700;
-  color:var(--p2); letter-spacing:4px; text-align:center;
-  background:var(--bg3); border:1.5px solid var(--border); border-radius:1.25rem;
-  padding:0.55rem; margin:0.75rem 1rem;
-}
-.room-player-slot {
-  display:flex; align-items:center; gap:0.636rem; padding:0.636rem 1rem;
-  border-radius:1rem; background:var(--card); border:1.5px solid var(--border); margin-bottom:0.386rem;
-}
-.room-player-slot.empty { border-style:dashed; opacity:.5; }
-.room-player-slot.ready { border-color:var(--acc3); }
-.slot-num { font-size:1rem; color:var(--muted); font-weight:900; width:1.136rem; }
-
-/* ─────────────────────────────────────────
-   MATCHMAKING
-───────────────────────────────────────── */
-.mm-spinner {
-  width:2.5rem; height:2.5rem; border-radius:50%;
-  border:4px solid var(--border); border-top-color:var(--p);
-  animation:spin .8s linear infinite; margin:0 auto 1.25rem;
-}
-.mm-dots span {
-  display:inline-block; width:0.455rem; height:0.455rem; border-radius:50%;
-  background:var(--p); margin:0.114rem; animation:mmDot 1.2s ease-in-out infinite;
-}
-.mm-dots span:nth-child(2) { animation-delay:.2s; }
-.mm-dots span:nth-child(3) { animation-delay:.4s; }
-@keyframes mmDot { 0%,80%,100%{transform:scale(0);opacity:.4} 40%{transform:scale(1);opacity:1} }
-
-/* ─────────────────────────────────────────
-   PROFILE
-───────────────────────────────────────── */
-.profile-header {
-  text-align:center; padding:0.825rem 1rem 1rem;
-  background:linear-gradient(180deg,rgba(108,99,255,.1) 0%, transparent 100%);
-}
-.profile-avatar-big { font-size:4.545rem; margin-bottom:0.5rem; display:block; }
-.profile-name { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--text); }
-.profile-level { font-size:0.864rem; color:var(--muted); font-weight:700; margin-top:0.182rem; }
-.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; padding:0 1rem; margin-bottom:0.55rem; }
-.stat-card { background:var(--card); border-radius:1rem; border:1.5px solid var(--border); padding:0.75rem 0.636rem; text-align:center; }
-.stat-val { font-family:'JetBrains Mono',monospace; font-size:1.25rem; font-weight:700; color:var(--p2); }
-.stat-lbl { font-size:0.636rem; color:var(--muted); font-weight:700; margin-top:0.136rem; }
-
-/* ─────────────────────────────────────────
-   COUNTRY SELECT
-───────────────────────────────────────── */
-.country-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; padding:0 1rem; max-height:11.25rem; overflow-y:auto; }
-.country-opt {
-  display:flex; align-items:center; gap:0.5rem; padding:0.636rem 0.75rem;
-  border-radius:0.864rem; background:var(--card); border:1.5px solid var(--border);
-  cursor:pointer; transition:all .18s;
-}
-.country-opt.selected { border-color:var(--p); background:rgba(108,99,255,.1); }
-.country-opt:hover { border-color:var(--p-dark); }
-.country-name { font-size:0.818rem; font-weight:700; color:var(--text); }
-
-/* ─────────────────────────────────────────
-   ACHIEVEMENT POPUP
-───────────────────────────────────────── */
-.achievement-popup {
-  position:fixed; top:2.273rem; left:50%; transform:translateX(-50%) translateY(-150%);
-  background:linear-gradient(135deg,var(--card),var(--bg3));
-  border:1.5px solid var(--gold); border-radius:1.25rem;
-  padding:0.864rem 1.5rem; display:flex; align-items:center; gap:0.636rem;
-  z-index:9997; box-shadow:0 8px 32px rgba(255,215,0,.3);
-  transition:transform .4s cubic-bezier(.175,.885,.32,1.275);
-  min-width:60%; max-width:90%;
-}
-.achievement-popup.show { transform:translateX(-50%) translateY(0); }
-.achievement-icon { font-size:1.818rem; }
-.achievement-text { }
-.achievement-title { font-size:0.727rem; color:var(--gold); font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
-.achievement-name { font-size:0.955rem; font-weight:800; color:var(--text); }
-
-/* ─────────────────────────────────────────
-   BOT THINKING DOTS
-───────────────────────────────────────── */
-.bot-thinking { display:inline-flex; gap:0.227rem; align-items:center; }
-.bot-thinking span {
-  width:0.386rem; height:0.386rem; border-radius:50%;
-  background:var(--p2); animation:botDot .9s ease-in-out infinite;
-}
-.bot-thinking span:nth-child(2) { animation-delay:.15s; }
-.bot-thinking span:nth-child(3) { animation-delay:.3s; }
-@keyframes botDot { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-0.409rem);opacity:1} }
-
-/* ─────────────────────────────────────────
-   VOICE CHAT
-───────────────────────────────────────── */
-.voice-btn {
-  display:flex; align-items:center; gap:0.318rem; padding:0.5rem 0.909rem;
-  border-radius:0.909rem; border:1.5px solid var(--border); background:var(--card);
-  cursor:pointer; font-size:0.75rem; font-weight:800; color:var(--muted); transition:all .18s;
-}
-.voice-btn.active { border-color:var(--acc); background:rgba(255,107,107,.1); color:var(--acc); }
-.voice-btn.speaking { border-color:var(--acc3); background:rgba(78,205,196,.1); color:var(--acc3); animation:speakPulse .8s ease-in-out infinite; }
-@keyframes speakPulse { 0%,100%{box-shadow:0 0 0 rgba(78,205,196,.4)} 50%{box-shadow:0 0 12px rgba(78,205,196,.4)} }
-
-/* ─────────────────────────────────────────
-   SCROLL TABS
-───────────────────────────────────────── */
-.tab-row { display:flex; gap:0.386rem; padding:0.5rem 1rem 0.75rem; flex-shrink:0; overflow-x:auto; scrollbar-width:none; }
-.tab-row::-webkit-scrollbar { display:none; }
-.tab {
-  padding:0.5rem 1.136rem; border-radius:1rem; border:1.5px solid var(--border);
-  background:var(--card); color:var(--muted); font-size:0.818rem; font-weight:800;
-  cursor:pointer; transition:all .18s; white-space:nowrap; flex-shrink:0;
-}
-.tab.active { background:var(--p); border-color:var(--p); color:#fff; box-shadow:0 3px 12px var(--p-glow); }
-
-/* ─────────────────────────────────────────
-   COMBO STREAK BADGE
-───────────────────────────────────────── */
-.combo-badge {
-  display:inline-flex; align-items:center; gap:0.227rem;
-  padding:0.227rem 0.682rem; border-radius:0.75rem;
-  background:linear-gradient(135deg,var(--acc),#ff4444);
-  font-size:0.75rem; font-weight:900; color:#fff;
-  animation:comboPulse .5s ease-in-out;
-}
-@keyframes comboPulse { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
-
-/* ─────────────────────────────────────────
-   REWARDED AD MODAL
-───────────────────────────────────────── */
-.reward-ad-content { text-align:center; padding:0.688rem 1rem 0.75rem; }
-.reward-ad-icon { font-size:2.727rem; margin-bottom:0.636rem; }
-.reward-ad-title { font-family:'Syne',sans-serif; font-size:1.364rem; font-weight:800; color:var(--text); margin-bottom:0.318rem; }
-.reward-ad-sub { font-size:0.864rem; color:var(--muted); margin-bottom:0.864rem; }
-
-/* ─────────────────────────────────────────
-   SETTINGS
-───────────────────────────────────────── */
-.settings-row {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0.75rem 1rem; border-bottom:1px solid var(--border);
-  cursor:pointer;
-}
-.settings-row:hover { background:rgba(108,99,255,.05); }
-.settings-label { font-size:0.955rem; font-weight:700; color:var(--text); }
-.settings-value { font-size:0.864rem; color:var(--muted); font-weight:700; }
-.toggle {
-  width:1.25rem; height:1.25rem; border-radius:1.25rem; position:relative;
-  background:var(--bg3); border:1.5px solid var(--border); cursor:pointer; transition:.18s;
-}
-.toggle.on { background:var(--p); border-color:var(--p); }
-.toggle::after {
-  content:''; position:absolute; top:50%; left:0.227rem; transform:translateY(-50%);
-  width:0.864rem; height:0.864rem; border-radius:50%; background:#fff; transition:.18s;
-}
-.toggle.on::after { left:calc(100% - 1.091rem); }
-</style>
-  <!-- Supabase JS — Realtime multiplayer için -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
+<body>
 <body>
 
 <!-- ══════════════════════════════════════════
@@ -925,7 +200,7 @@ body::before {
         </div>
         <div class="mode-card-arrow">›</div>
       </div>
-      <div class="mode-card" onclick="startOfflineGame('bot')">
+      <div class="mode-card" onclick="goScreen('screen-bot-difficulty')">
         <div class="mode-card-emoji">🤖</div>
         <div class="mode-card-body">
           <div class="mode-card-title">Bot ile Oyna</div>
@@ -958,13 +233,40 @@ body::before {
     </div>
     <div style="padding:0 .44rem;margin-bottom:.44rem;" id="home-lb-preview"></div>
 
+    <!-- Quick Features -->
+    <div class="section-head">
+      <div class="section-title">Özellikler</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.33rem;padding:0 .44rem;margin-bottom:.44rem;">
+      <div style="background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,179,71,.1));border:1.5px solid var(--gold);border-radius:.55rem;padding:.33rem .44rem;cursor:pointer;" onclick="goScreen('screen-daily-reward')">
+        <div style="font-size:.8rem;">🎁</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Günlük Ödül</div>
+        <div style="font-size:.28rem;color:var(--muted);" id="home-streak-label">Seriyi koru!</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(139,131,255,.1));border:1.5px solid var(--p);border-radius:.55rem;padding:.33rem .44rem;cursor:pointer;" onclick="goScreen('screen-battlepass')">
+        <div style="font-size:.8rem;">⭐</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Sezon Geçişi</div>
+        <div style="font-size:.28rem;color:var(--muted);" id="home-season-label">Sv. 1</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(78,205,196,.15),rgba(168,230,207,.05));border:1.5px solid var(--acc3);border-radius:.55rem;padding:.33rem .44rem;cursor:pointer;" onclick="goScreen('screen-collection')">
+        <div style="font-size:.8rem;">📖</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Koleksiyon</div>
+        <div style="font-size:.28rem;color:var(--muted);" id="home-collection-label">0 kelime</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(255,107,107,.15),rgba(255,107,107,.05));border:1.5px solid var(--acc);border-radius:.55rem;padding:.33rem .44rem;cursor:pointer;" onclick="goScreen('screen-tournament')">
+        <div style="font-size:.8rem;">🏆</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Turnuva</div>
+        <div style="font-size:.28rem;color:var(--muted);">Kayıt açık!</div>
+      </div>
+    </div>
+
     <div style="height:.44rem;"></div>
   </div>
 
   <nav class="navbar">
     <div class="nav-item active" onclick="goScreen('screen-home')"><div class="nav-icon">🏠</div><div class="nav-label">Ana Sayfa</div></div>
-    <div class="nav-item" onclick="goScreen('screen-leaderboard')"><div class="nav-icon">🏆</div><div class="nav-label">Lider</div></div>
-    <div class="nav-item" onclick="goScreen('screen-chat')"><div class="nav-icon">💬</div><div class="nav-label">Sohbet</div></div>
+    <div class="nav-item" onclick="goScreen('screen-tournament')"><div class="nav-icon">🏆</div><div class="nav-label">Turnuva</div></div>
+    <div class="nav-item" onclick="goScreen('screen-friends')"><div class="nav-icon">👥</div><div class="nav-label">Arkadaş</div></div>
     <div class="nav-item" onclick="goScreen('screen-store')"><div class="nav-icon">🛒</div><div class="nav-label">Mağaza</div></div>
     <div class="nav-item" onclick="goScreen('screen-profile')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
   </nav>
@@ -1199,6 +501,7 @@ body::before {
 
     <div style="display:flex;flex-direction:column;gap:.22rem;width:100%;">
       <button class="btn btn-primary btn-lg btn-full" onclick="playAgain()">🔄 Tekrar Oyna</button>
+      <button class="btn btn-secondary btn-full" onclick="openShareModal()">📤 Skoru Paylaş</button>
       <button class="btn btn-secondary btn-full" onclick="goScreen('screen-home')">🏠 Ana Sayfa</button>
     </div>
   </div>
@@ -1449,7 +752,7 @@ body::before {
       </div>
       <div class="settings-row" style="padding:.22rem 0;">
         <span class="settings-label">🌍 Dil / Ülke</span>
-        <span class="settings-value">🇹🇷 Türkçe</span>
+        <span class="settings-value" id="settings-country">🇹🇷 Türkçe</span>
       </div>
     </div>
 
@@ -1526,2227 +829,304 @@ body::before {
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     SCREEN — TOURNAMENT
+═══════════════════════════════════════════ -->
+<div id="screen-tournament" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">🏆 Turnuva</div>
+    <div></div>
+  </div>
+  <div class="tab-row" id="tourn-tabs">
+    <div class="tab active" onclick="switchTournTab('daily')">📅 Günlük</div>
+    <div class="tab" onclick="switchTournTab('weekly')">🗓️ Haftalık</div>
+    <div class="tab" onclick="switchTournTab('bracket')">🎯 Bracket</div>
+  </div>
+  <div class="scroll-content" style="padding:0 .44rem;">
+    <div id="tournament-list" style="margin-top:.22rem;"></div>
+    <div style="height:.55rem;"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="tourn-register-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="tourn-reg-title">Turnuvaya Katıl</div>
+    <div style="text-align:center;margin-bottom:.33rem;">
+      <div style="font-size:1.5rem;" id="tourn-reg-icon">🏆</div>
+      <div style="font-size:.38rem;color:var(--muted);margin-top:.17rem;" id="tourn-reg-desc">Günlük turnuvaya katıl</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:.44rem;padding:.33rem .44rem;margin-bottom:.33rem;" id="tourn-reg-prizes"></div>
+    <div style="font-size:.33rem;color:var(--muted);text-align:center;margin-bottom:.33rem;">Giriş ücretsizdir. İlk 3'e giren ödül kazanır!</div>
+    <div style="display:flex;gap:.22rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('tourn-register-modal')">İptal</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmTournRegister()">🚀 Katıl</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — FRIENDS
+═══════════════════════════════════════════ -->
+<div id="screen-friends" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">👥 Arkadaşlar</div>
+    <div class="icon-btn" onclick="openAddFriendModal()">➕</div>
+  </div>
+  <div class="tab-row" id="friends-tabs">
+    <div class="tab active" onclick="switchFriendsTab('friends')">👥 Arkadaşlar</div>
+    <div class="tab" onclick="switchFriendsTab('requests')">📩 İstekler <span id="friend-req-badge" style="display:none;background:var(--acc);color:#fff;border-radius:50%;font-size:.28rem;padding:.05rem .2rem;margin-left:.1rem;">0</span></div>
+    <div class="tab" onclick="switchFriendsTab('facebook')">🔵 Facebook</div>
+  </div>
+  <div class="scroll-content" style="padding:.22rem .44rem;">
+    <div id="friends-list-content"></div>
+    <div style="height:.55rem;"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="add-friend-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Arkadaş Ekle</div>
+    <input type="text" class="input" id="add-friend-input" placeholder="Kullanıcı adı ara..." style="-webkit-user-select:text;user-select:text;margin-bottom:.33rem;" oninput="searchFriends(this.value)">
+    <div id="friend-search-results" style="margin-bottom:.33rem;"></div>
+    <button class="btn btn-secondary btn-full" onclick="closeModal('add-friend-modal')">Kapat</button>
+  </div>
+</div>
+<div class="modal-overlay" id="fb-login-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Facebook ile Bağlan</div>
+    <div style="text-align:center;margin-bottom:.44rem;">
+      <div style="font-size:2rem;margin-bottom:.22rem;">🔵</div>
+      <div style="font-size:.38rem;color:var(--muted);">Sadece isim ve profil fotoğrafın alınacak.</div>
+    </div>
+    <div style="background:rgba(24,119,242,.08);border:1px solid rgba(24,119,242,.3);border-radius:.44rem;padding:.33rem .44rem;margin-bottom:.33rem;font-size:.33rem;color:var(--muted);">
+      🔒 <strong>Gizlilik:</strong> Sadece public profil (isim, fotoğraf) ve isteğe bağlı arkadaş listesi alınır.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.22rem;">
+      <button class="fb-login-btn" onclick="fbLoginBasic()">🔵 Sadece Profil Bilgileriyle Bağlan</button>
+      <button class="fb-login-btn" style="background:#1565C0;" onclick="fbLoginWithFriends()">👥 Profil + Arkadaş Listesiyle Bağlan</button>
+      <button class="btn btn-secondary btn-full" onclick="closeModal('fb-login-modal')">İptal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — DAILY LOGIN REWARD
+═══════════════════════════════════════════ -->
+<div id="screen-daily-reward" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">🎁 Günlük Ödül</div>
+    <div></div>
+  </div>
+  <div class="scroll-content" style="padding:.44rem;">
+    <div style="text-align:center;margin-bottom:.44rem;padding:.44rem;background:var(--card);border:1.5px solid var(--border);border-radius:.66rem;">
+      <div class="streak-flame">🔥</div>
+      <div class="streak-count" id="daily-streak-count">0</div>
+      <div style="font-size:.38rem;color:var(--muted);font-weight:700;">Günlük Seri</div>
+      <div style="font-size:.33rem;color:var(--muted);margin-top:.17rem;" id="daily-next-claim">Bugün ödülünü al!</div>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:.44rem;font-weight:800;color:var(--text);margin-bottom:.22rem;text-align:center;">7 Günlük Ödül Döngüsü</div>
+    <div class="daily-reward-grid" id="daily-reward-grid"></div>
+    <div style="margin-top:.44rem;">
+      <button class="btn btn-primary btn-lg btn-full" id="daily-claim-btn" onclick="claimDailyReward()">🎁 Bugünkü Ödülü Al</button>
+    </div>
+    <div style="margin-top:.44rem;background:var(--card);border:1.5px solid var(--border);border-radius:.66rem;padding:.44rem;">
+      <div style="font-size:.36rem;font-weight:800;color:var(--text);margin-bottom:.17rem;">🏅 Seri Bonusları</div>
+      <div style="font-size:.33rem;color:var(--muted);">🔥 3 gün → +50 Coin bonus<br>🔥 7 gün → 💎 5 Gem bonus<br>🔥 14 gün → ⚡ Güç Paketi<br>🔥 30 gün → 👑 Özel Avatar</div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="daily-reward-popup">
+  <div class="modal-sheet" style="text-align:center;">
+    <div class="modal-handle"></div>
+    <div style="font-size:1.5rem;margin-bottom:.17rem;">🎁</div>
+    <div class="modal-title">Günlük Ödülün!</div>
+    <div style="margin-bottom:.33rem;">
+      <div style="font-size:2rem;" id="popup-reward-icon">🪙</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--gold);margin:.1rem 0;" id="popup-reward-val">+100</div>
+      <div style="font-size:.36rem;color:var(--muted);" id="popup-reward-day">1. Gün Ödülü</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:.44rem;padding:.28rem .44rem;margin-bottom:.33rem;font-size:.33rem;color:var(--muted);">
+      🔥 Seri: <strong id="popup-streak">1</strong> gün
+    </div>
+    <button class="btn btn-primary btn-lg btn-full" onclick="closeModal('daily-reward-popup')">🎉 Harika!</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — BATTLE PASS (SEASON)
+═══════════════════════════════════════════ -->
+<div id="screen-battlepass" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">⭐ Sezon Geçişi</div>
+    <div></div>
+  </div>
+  <div class="scroll-content">
+    <div class="season-header">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.22rem;">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:.55rem;font-weight:800;color:var(--text);">Sezon 1</div>
+          <div style="font-size:.33rem;color:var(--muted);" id="season-end-date">Biter: 30 Gün kaldı</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:.33rem;color:var(--muted);">Seviye</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:800;color:var(--p2);" id="season-level-display">1</div>
+        </div>
+      </div>
+      <div class="bp-level-bar"><div class="bp-level-fill" id="season-xp-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.3rem;color:var(--muted);">
+        <span id="season-xp-text">0 XP</span><span id="season-xp-needed">1000 XP sonraki seviye</span>
+      </div>
+    </div>
+    <div style="margin:.17rem .44rem;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,179,71,.1));border:1.5px solid var(--gold);border-radius:.55rem;padding:.33rem .44rem;display:flex;align-items:center;gap:.33rem;" id="bp-premium-banner">
+      <div style="font-size:1rem;">👑</div>
+      <div style="flex:1;">
+        <div style="font-size:.38rem;font-weight:800;color:var(--gold);">Premium Geçiş</div>
+        <div style="font-size:.3rem;color:var(--muted);">Altın ödülleri aç · Özel avatar · Bonus XP</div>
+      </div>
+      <button class="btn btn-sm" style="background:var(--gold);color:#000;font-weight:800;font-size:.33rem;" onclick="buyPremiumPass()">💎 50</button>
+    </div>
+    <div class="tab-row" id="bp-track-tabs" style="margin:.17rem .44rem;">
+      <div class="tab active" onclick="switchBpTrack('free')">🆓 Ücretsiz</div>
+      <div class="tab" onclick="switchBpTrack('premium')">👑 Premium</div>
+    </div>
+    <div class="bp-season-tracks" id="bp-tiers-container"></div>
+    <div style="height:.55rem;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — WORD COLLECTION
+═══════════════════════════════════════════ -->
+<div id="screen-collection" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">📖 Koleksiyon</div>
+    <div></div>
+  </div>
+  <div class="tab-row" id="collection-tabs">
+    <div class="tab active" onclick="switchCollectionTab('all')">Tümü</div>
+    <div class="tab" onclick="switchCollectionTab('legendary')">🌟 Efsanevi</div>
+    <div class="tab" onclick="switchCollectionTab('epic')">💜 Epik</div>
+    <div class="tab" onclick="switchCollectionTab('rare')">🔵 Nadir</div>
+  </div>
+  <div class="scroll-content">
+    <div style="display:flex;justify-content:space-around;padding:.33rem .44rem;background:var(--card);border-bottom:1px solid var(--border);">
+      <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--p2);" id="coll-total">0</div><div style="font-size:.28rem;color:var(--muted);">Toplam</div></div>
+      <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--gold);" id="coll-legendary">0</div><div style="font-size:.28rem;color:var(--muted);">Efsanevi</div></div>
+      <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--p2);" id="coll-epic">0</div><div style="font-size:.28rem;color:var(--muted);">Epik</div></div>
+      <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--acc3);" id="coll-rare">0</div><div style="font-size:.28rem;color:var(--muted);">Nadir</div></div>
+    </div>
+    <div class="collection-grid" id="collection-grid"></div>
+    <div style="height:.55rem;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — BOT DIFFICULTY SELECT
+═══════════════════════════════════════════ -->
+<div id="screen-bot-difficulty" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">🤖 Zorluk Seç</div>
+    <div></div>
+  </div>
+  <div class="scroll-content" style="padding:.44rem;">
+    <div style="text-align:center;margin-bottom:.44rem;">
+      <div style="font-size:1.5rem;margin-bottom:.17rem;">🤖</div>
+      <div style="font-family:'Syne',sans-serif;font-size:.55rem;font-weight:800;color:var(--text);">Bot Zorluk Seviyesi</div>
+      <div style="font-size:.36rem;color:var(--muted);">Rakibini seç ve oyna</div>
+    </div>
+    <div class="difficulty-grid">
+      <div class="diff-card easy selected" id="diff-easy" onclick="selectDifficulty('easy')">
+        <div class="diff-icon">😊</div><div class="diff-label">Kolay</div><div class="diff-desc">Yeni başlayanlar için</div>
+      </div>
+      <div class="diff-card normal" id="diff-normal" onclick="selectDifficulty('normal')">
+        <div class="diff-icon">🎯</div><div class="diff-label">Normal</div><div class="diff-desc">Orta zorluk</div>
+      </div>
+      <div class="diff-card hard" id="diff-hard" onclick="selectDifficulty('hard')">
+        <div class="diff-icon">🔥</div><div class="diff-label">Zor</div><div class="diff-desc">Deneyimliler için</div>
+      </div>
+      <div class="diff-card insane" id="diff-insane" onclick="selectDifficulty('insane')">
+        <div class="diff-icon">💀</div><div class="diff-label">Delice</div><div class="diff-desc">Uzman zorluk</div>
+      </div>
+    </div>
+    <div style="margin-top:.44rem;background:var(--card);border:1.5px solid var(--border);border-radius:.55rem;padding:.33rem .44rem;" id="diff-preview-card">
+      <div style="font-size:.36rem;font-weight:800;color:var(--text);margin-bottom:.17rem;" id="diff-preview-title">😊 Kolay Mod</div>
+      <div style="font-size:.33rem;color:var(--muted);" id="diff-preview-desc">Bot rastgele geçerli kelimeler seçer. Kısa kelimeleri tercih eder. Bazen hata yapar.</div>
+    </div>
+    <button class="btn btn-primary btn-lg btn-full" style="margin-top:.44rem;" onclick="startBotGameWithDifficulty()">🚀 Oyunu Başlat</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SOCIAL SHARE MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Skoru Paylaş</div>
+    <div class="share-card">
+      <div class="share-card-game">SonHarf 🔤</div>
+      <div class="share-card-score" id="share-score-val">0</div>
+      <div class="share-card-stats">
+        <div class="share-stat"><div class="share-stat-val" id="share-words-val">0</div><div class="share-stat-lbl">Kelime</div></div>
+        <div class="share-stat"><div class="share-stat-val" id="share-result-val">🏆</div><div class="share-stat-lbl">Sonuç</div></div>
+        <div class="share-stat"><div class="share-stat-val" id="share-streak-val">0</div><div class="share-stat-lbl">Seri</div></div>
+      </div>
+      <div style="font-size:.3rem;color:var(--muted);margin-top:.17rem;">sonharf.app</div>
+    </div>
+    <div class="share-buttons">
+      <button class="share-btn whatsapp" onclick="shareToWhatsApp()">💬 WhatsApp</button>
+      <button class="share-btn twitter" onclick="shareToTwitter()">🐦 Twitter</button>
+      <button class="share-btn instagram" onclick="shareToInstagram()">📸 Instagram</button>
+      <button class="share-btn copy-link" onclick="copyShareLink()">🔗 Kopyala</button>
+    </div>
+    <button class="btn btn-secondary btn-full" style="margin:.33rem .44rem 0;" onclick="closeModal('share-modal')">Kapat</button>
+  </div>
+</div>
+
 </div><!-- /app -->
 
-<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
-<script>
-'use strict';
-
-/* ═══════════════════════════════════════════
-   HAPTIC FEEDBACK
-═══════════════════════════════════════════ */
-const haptic = {
-  light:   () => { if(settings.hapticEnabled) navigator.vibrate && navigator.vibrate(8); },
-  medium:  () => { if(settings.hapticEnabled) navigator.vibrate && navigator.vibrate(22); },
-  heavy:   () => { if(settings.hapticEnabled) navigator.vibrate && navigator.vibrate(50); },
-  success: () => { if(settings.hapticEnabled) navigator.vibrate && navigator.vibrate([12,60,20]); },
-  error:   () => { if(settings.hapticEnabled) navigator.vibrate && navigator.vibrate([30,40,30]); },
-};
-
-/* ═══════════════════════════════════════════
-   LOADING OVERLAY
-═══════════════════════════════════════════ */
-let loadingTimer = null;
-let loadingShownAt = 0;
-const LOADING_MIN_MS = 1200;
-
-function showLoading(msg) {
-  clearTimeout(loadingTimer);
-  const el = document.getElementById('loading-msg-text');
-  if (el) el.textContent = msg || 'Yükleniyor';
-  document.getElementById('loading-overlay').classList.add('show');
-  loadingShownAt = Date.now();
-}
-function hideLoading(fast) {
-  const elapsed = Date.now() - loadingShownAt;
-  const minMs = fast ? 400 : LOADING_MIN_MS;
-  const remaining = Math.max(0, minMs - elapsed);
-  clearTimeout(loadingTimer);
-  loadingTimer = setTimeout(() => {
-    document.getElementById('loading-overlay').classList.remove('show');
-  }, remaining);
-}
-
-/* ═══════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════ */
-let toastTimer = null;
-function showToast(msg, dur = 2500) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), dur);
-}
-
-/* ═══════════════════════════════════════════
-   LOCAL STORAGE HELPERS
-═══════════════════════════════════════════ */
-const LS = {
-  get: (k, def) => { try { const v = localStorage.getItem('wc_'+k); return v ? JSON.parse(v) : def; } catch(e) { return def; } },
-  set: (k, v)   => { try { localStorage.setItem('wc_'+k, JSON.stringify(v)); } catch(e) {} },
-  del: (k)       => { try { localStorage.removeItem('wc_'+k); } catch(e) {} },
-};
-
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-let user = LS.get('user', null);
-let settings = LS.get('settings', {
-  sfx: true, music: true, hapticEnabled: true, defaultTimer: 15
-});
-
-/* ═══════════════════════════════════════════
-   AD STATE
-═══════════════════════════════════════════ */
-let transitionCount = 0;
-let adPushed = {};
-let interstitialCountdownTimer = null;
-
-function pushAd(key) {
-  if (adPushed[key]) return;
-  adPushed[key] = true;
-  try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-}
-
-function tickTransition(screenId) {
-  const noAd = ['screen-onboard','screen-settings','screen-result'];
-  if (noAd.includes(screenId)) return;
-  transitionCount++;
-  if (transitionCount % 2 === 0) showInterstitial();
-}
-
-function showInterstitial() {
-  const ov = document.getElementById('interstitial-overlay');
-  pushAd('interstitial');
-  ov.classList.add('open');
-  const closeBtn = document.getElementById('interstitial-close');
-  const countdown = document.getElementById('interstitial-countdown');
-  closeBtn.classList.add('disabled');
-  let sec = 5;
-  countdown.textContent = sec;
-  clearInterval(interstitialCountdownTimer);
-  interstitialCountdownTimer = setInterval(() => {
-    sec--;
-    countdown.textContent = sec;
-    if (sec <= 0) {
-      clearInterval(interstitialCountdownTimer);
-      closeBtn.classList.remove('disabled');
-      countdown.textContent = '';
-    }
-  }, 1000);
-}
-function closeInterstitial() {
-  document.getElementById('interstitial-overlay').classList.remove('open');
-  clearInterval(interstitialCountdownTimer);
-}
-
-/* ═══════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════ */
-let prevScreen = 'screen-home';
-
-function goScreen(id) {
-  haptic.light();
-  showLoading(SCREEN_LABELS[id] || 'Yükleniyor');
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const leaving = document.querySelector('.screen.active')?.id;
-      if (id !== 'screen-result' && id !== 'screen-game') prevScreen = id;
-
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-
-      if (id !== 'screen-home') {
-        history.pushState({ screen: id }, '', '');
-      }
-
-      if (leaving && leaving !== id) tickTransition(id);
-
-      // Screen-specific init
-      if (id === 'screen-home')        { renderHome();        hideLoading(true); }
-      else if (id === 'screen-leaderboard') { renderLeaderboard('global'); hideLoading(true); }
-      else if (id === 'screen-store')  { renderStore('powerups');  hideLoading(true); }
-      else if (id === 'screen-chat')   { renderGlobalChat();  hideLoading(true); }
-      else if (id === 'screen-profile'){ renderProfile();     hideLoading(true); }
-      else if (id === 'screen-room')   { initRoom();          hideLoading(true); }
-      else if (id === 'screen-quests') { renderQuests('daily'); hideLoading(true); }
-      else if (id === 'screen-settings') { renderSettings(); hideLoading(true); }
-      else { hideLoading(true); }
-
-      // Ad banner map
-      const bannerMap = {
-        'screen-home':'ad-home-banner',
-        'screen-leaderboard':'ad-lb-banner',
-        'screen-result':'ad-result-banner',
-      };
-      if (bannerMap[id]) pushAd(bannerMap[id]);
-    });
-  });
-}
-
-const SCREEN_LABELS = {
-  'screen-home':'Ana Sayfa Yükleniyor',
-  'screen-matchmaking':'Eşleşme Başlatılıyor',
-  'screen-room':'Oda Hazırlanıyor',
-  'screen-game':'Oyun Başlıyor',
-  'screen-result':'Sonuçlar',
-  'screen-leaderboard':'Liderboard',
-  'screen-store':'Mağaza',
-  'screen-chat':'Sohbet',
-  'screen-profile':'Profil',
-  'screen-quests':'Görevler',
-  'screen-settings':'Ayarlar',
-};
-
-window.addEventListener('popstate', function(e) {
-  const active = document.querySelector('.screen.active')?.id;
-  if (!active || active === 'screen-home') return;
-  history.pushState({ screen: 'screen-home' }, '', '');
-  if (active === 'screen-game') {
-    forfeitGame();
-  } else {
-    goScreen(prevScreen || 'screen-home');
-  }
-});
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-/* ═══════════════════════════════════════════
-   DATA: AVATARS, COUNTRIES, WORDS
-═══════════════════════════════════════════ */
-const AVATARS = ['🦊','🐺','🦁','🐯','🐻','🦝','🐼','🦋','🦄','🐲','👾','🤖'];
-
-// Türkiye only - tek dil
-const COUNTRIES = [
-  {name:'Türkiye', flag:'🇹🇷', code:'TR'},
-];
-
-// Turkish word dictionary (500+ words for word chain game)
-/* ═══════════════════════════════════════════
-   KELİME SİSTEMİ — TDK API + Büyük Offline Liste
-   ─────────────────────────────────────────────
-   Doğrulama sırası:
-   1. Offline listede var mı? → anında kabul
-   2. Önbellekte var mı? → anında kabul  
-   3. TDK API'ye sor (CORS proxy ile) → kabul/ret
-═══════════════════════════════════════════ */
-
-// Büyük Türkçe kelime listesi (3000+ kelime, TDK tabanlı)
-// İsimler, fiil kökleri, sıfatlar, zarflar — özel isim YOK
-const WORD_DICT = new Set([
-  // A
-  'aba','abajur','abdest','abla','abone','abur','acemi','acı','acıbadem','acıklı','acımasız',
-  'aciz','ada','adam','adalet','aday','adım','adres','afet','afiş','afyon','ağa','ağaç',
-  'ağıl','ağır','ağıt','ağız','ağlak','ağrı','ahbap','ahır','ahlak','ahize','aile','akış',
-  'akıl','akın','akıncı','akit','akraba','akşam','aktör','al','alan','alaz','albüm','alçak',
-  'alçı','alev','alfabe','alın','alkış','alkolik','alev','ali','alim','alın','alıntı',
-  'alışkanlık','alkol','almanak','alp','alt','altın','altı','altuğ','alınlık','alışveriş',
-  'ambar','amca','amir','amiral','ampul','an','ana','anahtar','anakara','analiz','anak',
-  'anı','anıt','anne','apaçık','aptal','ar','ara','araç','araba','araştırma','arazi',
-  'ardıç','arı','arıza','arı','ark','arka','arkan','arkeoloji','arpa','arsa','arzu',
-  'as','asa','asansör','asıl','asker','aslan','ast','aşçı','at','ata','ateş','atlas',
-  'atık','atılgan','atış','atölye','avcı','av','avlu','avukat','ayna','ayak','ayaz','ayı',
-  'ayın','ayna','az','azık','azim','aziz','azot',
-  // B
-  'baba','bakış','baklava','bal','balkon','balon','balık','banka','bardak','bayrak','baskı',
-  'bastırma','baston','baş','başak','başarı','başkan','baştankara','bat','batı','batık',
-  'bebek','beden','beyin','beyaz','bilgi','bilim','bip','bodrum','boyun','borç','boru',
-  'boş','boşluk','boy','boyut','boz','böbrek','böcek','bölge','bölüm','böyle','budak',
-  'buğday','bulut','burun','büyük','buz','buzul','bülten','büro','büyücü','büyüme',
-  'bağ','bağırsak','bağlam','bahçe','bakan','bakliyat','bale','balya','ban','bayat',
-  'beğeni','belge','belirli','belit','bellek','bencil','benlik','berber','berrak','bezgin',
-  'bilek','bileşen','bilezik','bilge','bilgisayar','bilinç','bile','bileşik','birim','bisiklet',
-  'boyama','boyama','budama','bulgu','buluş','bunalım','burgu','buruşuk','busket',
-  // C-Ç
-  'cadde','cam','can','canlı','ceket','cep','cesur','cin','cins','cevap','ceviz','ceylan',
-  'cihaz','cila','cilt','çakı','çalı','çam','çanta','çarşaf','çay','çember','çevre','çiçek',
-  'çizgi','çorap','çorba','çubuk','çukur','çelik','çelimsiz','çember','çeşit','çevre',
-  'çığlık','çıkış','çınar','çığır','çıkmazlar','çıktı','çığ','çırak','çıta','çığır',
-  'çömlek','çöp','çöplük','çörek','çözelti','çözüm','çulha','çuval',
-  // D
-  'dağ','dal','dans','davet','dede','demir','deniz','deve','dil','dilim','din','dize',
-  'dolap','domates','dost','duvar','dünya','düş','damar','damlacık','dama','damga','damla',
-  'darbe','darlık','dayanık','değer','değişim','dekor','delgi','deney','deprem','deri',
-  'dersane','destan','devlet','devre','dikiş','dikkat','dilek','dirsek','disiplin','diz',
-  'dizayn','dizi','doğa','doğu','doğum','dolgu','dom','dopamin','doruk','duman','dumur',
-  'duygu','duyarlı','düğme','düğün','düzlem','düzen','düzey','düzine',
-  // E
-  'ekmek','el','elma','emek','er','erkek','esir','ev','eylem','ebru','edebiyat','efsane',
-  'eğlence','eksen','ekip','ekran','eksik','eksoz','ekstra','el','elçi','element','elmas',
-  'eleman','elveda','emekçi','emir','encam','engin','enlem','ense','erdem','erik','erken',
-  'erozyon','eski','estetik','etken','etraf','etki','etnik','evren','evrim','evre','ezgi',
-  'ezik','eziyet',
-  // F
-  'fırtına','film','fincan','fırın','fiyat','flaş','folklor','form','felsefe','ferahlık',
-  'festival','fikir','firavun','fitil','fotoğraf','fraksiyon','fren','fuaye','fırça','fındık',
-  'fındıklı','fıstık','fıkra','fırlama','fon','fosil','frekans','füze',
-  // G
-  'gece','gemi','gençlik','geri','gıda','göl','göz','gül','güneş','güven','garip','gazete',
-  'gelişim','geometri','geçim','geçit','gelecek','geniş','gergin','gezgin','gizem','gizli',
-  'göç','göçmen','görev','görsel','gösteriş','gübre','güç','güdü','gürültü','gümüş',
-  'gündüz','güneş','güvenlik','güzel','gözlük','gözlem','gözaltı',
-  // H
-  'haber','hak','hal','halı','hamur','harita','hayat','hayal','hazır','hediye','heyecan',
-  'hikaye','hız','hasar','hastalık','hatıra','hava','havlu','harf','hareket','harita',
-  'hata','hayran','hedef','hesap','hile','hoşgörü','hukuk','humma','huzur',
-  // I-İ
-  'ışık','içki','ilaç','imam','insan','ip','irmak','iş','ibret','ilgi','istek','iftira',
-  'ihtiyaç','ihtişam','ikilim','ikili','iknai','ilerleme','imar','imge','imtiyaz','imza',
-  'ipek','ipucu','irade','iri','irkilme','iş','işaret','işbirliği','işlem','işsiz',
-  'izin','izlenim',
-  // J-K
-  'jilet','jüri','kağıt','kale','kalem','kamp','kan','kara','karar','kasap','kavun','kayak',
-  'kaygı','kazan','kelime','kenar','kibrit','kitap','kol','komşu','kova','köpek','kral',
-  'kumaş','kural','kuş','kuzey','kahraman','kanat','kapı','kaya','kemer','kiriş','kısmet',
-  'kış','kışlık','köy','körfez','küçük','küme','küp','kürk','kürek','küresel','kütük',
-  'kütüphane','kaçak','kaçış','kahve','kalem','kalın','kalıp','kalp','kalıcı','kamyon',
-  'kapak','kapalı','karanlık','karma','karmaşa','karşılık','katman','katsayı','kavram',
-  'kaynak','kazanım','kazık','kefen','kemik','keskin','kesit','keşif','keşmekeş',
-  // L
-  'lahana','lale','liman','liste','lokanta','leblebi','lezzet','lira','laf','laik',
-  'lamba','lanet','lazım','levha','limon','lirik','lojistik','lonca',
-  // M
-  'macera','makas','mavi','meydan','merak','mermer','meyve','miras','mutlu','müzik',
-  'makine','malzeme','mektup','meşe','mevsim','masa','maske','medya','medeni','melek',
-  'meltem','menzil','meşrutiyet','metin','metraj','metro','meydana','mezar','mızrak',
-  'miras','misafir','mor','motif','mozaik','müdür','müzeyyen',
-  // N
-  'nane','nehir','nimet','nota','nohut','numara','nar','namaz','nilüfer','nüfus',
-  'nitelik','niyaz','nokta','norm','nüans',
-  // O-Ö
-  'odun','okul','olta','omuz','orman','otobüs','oy','ocak','ödev','örnek','öykü',
-  'öğrenci','örgü','özenli','obje','oda','olay','olgu','oluk','onay','onur','organ',
-  'ortak','oy','oyun','öfke','öğreti','öğüt','ölçek','ölçüm','ölüm','önem','öz',
-  'özgür','özlem','özet','özgünlük',
-  // P
-  'parmak','pasta','pazar','peçete','pencere','perde','peri','pilav','plaj','portakal',
-  'posta','pamuk','papatya','parça','park','papağan','paket','pano','paralel','paranoya',
-  'parlaklık','paslanmaz','paylaşım','pehlivan','perde','performans','piyade','piyano',
-  'plaka','pompa','porselen','pozisyon','pul','puro',
-  // R
-  'radyo','resim','roman','rüzgar','reform','rehber','renk','rapor','renkli',
-  'ringa','risk','robotik','rutin',
-  // S-Ş
-  'sabun','saat','sahil','saray','sarı','sepet','ses','sinema','soba','sokak','sorun',
-  'soğuk','sözlük','sultan','süt','sandık','sarımsak','savaş','sevinç','sıcaklık','simge',
-  'sancak','sanat','santraç','saplantı','sarmal','seçim','seçmen','sekiz','senfoni',
-  'serbest','sergi','servis','seyahat','sınır','sınıf','sığınak','silah','silgi','simit',
-  'sistem','sivil','söküm','sözleşme','suç','sulak','sulama','süreç','sürtünme',
-  'şarkı','şehir','şeker','şemsiye','şerit','şiir','şimşek','şahin','şans','şef',
-  'şeffaf','şiddet','şikayet','şurup','şüphe',
-  // T
-  'tahta','taş','tavan','tavsiye','taze','telefon','tema','tencere','tiyatro','toprak',
-  'türkü','tablet','takım','talep','tanık','tatlı','taban','tablo','tabu','taç','tahin',
-  'taklit','talih','tapınak','tarih','tasarım','tasarruf','taşıt','tatil','tecrübe',
-  'teknik','tekrar','telafi','temel','temizlik','teori','tepki','tercih','terör','terslik',
-  'testere','teyze','tıp','titre','tohum','toplum','trafik','tramvay','tren','türbe',
-  // U-Ü
-  'uçak','ufuk','umut','uyku','uzay','ulusal','uygulama','uzlaşma','ufak','ulaşım',
-  'ulus','uzak','uzantı','uzman','üzüm','ülke','ünlü','üzüntü','üretim','ürün',
-  'üslup','üstünlük','üye',
-  // V
-  'vakit','varlık','vatan','verimli','vadi','vapur','vatandaş','veli','vergi','virüs',
-  'vizyon','voleybol',
-  // Y-Z
-  'yağmur','yaprak','yastık','yatak','yazı','yıldız','yurt','yüzük','yaban','yardım',
-  'yarın','yasak','yavaş','yeniden','yazar','yıkım','yiğit','yoksul','yorgun','yorum',
-  'yüklem','yüksek','yüzde','zaman','zeytin','zincir','zirve','zafer','zayıf','zemin',
-  'zevk','zihin','zorlu','zorba','zambak','zelzele','zamk',
-  // Ek kelimeler — oyun için önemli
-  'armut','terazi','inci','pul','limon','nisan','nacak','ibrik','asel','anlam','anket',
-  'buzul','ceylan','ebru','fotoğraf','geometri','gezgin','güdü','hasret','içerik',
-  'jeton','kahraman','lojistik','merkez','niyet','olanak','peyzaj','randevu','senfoni',
-  'teknoloji','uzlaşı','verimlilik','yenlik','ziraat',
-  // Fiil kökleri (isim formu)
-  'bakış','duruş','gidiş','geliş','görüş','oluş','tutum','varış','çıkış','iniş',
-  'yürüyüş','koşuş','seçiş','buluş','yapım','işleyiş','söyleyiş',
-  // Ek isimler
-  'ağırlık','belirginlik','bütünlük','çeşitlilik','dönüşüm','erişim','güvenilirlik',
-  'hazırlık','iyimserlik','kaygısızlık','liderlik','meraklılık','neşe','olgunluk',
-  'özveri','paylaşım','rahatlık','saygınlık','tarafsızlık','umursamazlık','verimlilik',
-  // Hayvanlar
-  'kedi','köpek','kuş','balık','inek','keçi','koyun','tavuk','ördek','kaz','eşek',
-  'kaplan','kurt','tilki','geyik','tavşan','fare','maymun','fil','zürafa','leopar',
-  'kartal','baykuş','papağan','güvercin','kırlangıç','martı','flamingo',
-  'yılan','timsah','kaplumbağa','kurbağa','ahtapot','yunus','balina',
-  // Doğa
-  'kar','bulut','gökyüzü','kök','orman','ırmak','kum','çimen','tarla',
-  'kasırga','deprem','volkan','şelale','buzul','çöl','bataklık',
-  // Ev eşyaları
-  'oda','tavan','merdiven','koltuk','yatak','dolap','lamba','perde',
-  'sandalye','lavabo','banyo','salon','koridor','çatı',
-  'çekiç','tornavida','vida','çivi','kilit',
-  // Yiyecek içecek
-  'çay','kahve','süt','yoğurt','peynir','zeytin','bal','reçel','tereyağı',
-  'muz','kiraz','çilek','karpuz','şeftali','kayısı','incir',
-  'domates','salatalık','biber','soğan','sarımsak','patates','havuç','patlıcan',
-  'pilav','makarna','börek','kebap','döner','lahmacun','pide','simit',
-  'pasta','kek','kurabiye','dondurma','çikolata','baklava',
-  // Ulaşım
-  'otobüs','tren','uçak','gemi','bisiklet','motosiklet','kamyon','taksi','metro','tramvay',
-  // Giysi aksesuar
-  'gömlek','pantolon','etek','elbise','palto','mont','ayakkabı','şapka','eldiven',
-  'kravat','kemer','gözlük','yüzük','kolye','küpe','bileklik',
-  // Aile
-  'kardeş','abla','abi','nine','teyze','amca','hala','dayı','gelin','damat','torun',
-  // Zaman
-  'sabah','öğle','akşam','hafta','ilkbahar','sonbahar','saniye','mevsim',
-  'pazartesi','salı','çarşamba','perşembe','cuma','cumartesi','pazar',
-  'ocak','şubat','mart','nisan','mayıs','haziran','temmuz','ağustos','eylül','ekim','kasım','aralık',
-  // Renkler
-  'kırmızı','mavi','yeşil','sarı','siyah','beyaz','turuncu','pembe','kahve','gri','lacivert','bej',
-  // Sıfatlar
-  'uzun','kısa','geniş','dar','ağır','hafif','yeni','güzel','çirkin','hızlı','yavaş',
-  'kolay','doğru','yanlış','zengin','fakir','akıllı','cesur','korkak','nazik','kaba',
-  // Meslekler
-  'doktor','mühendis','avukat','polis','asker','pilot','aktör','şarkıcı',
-  'gazeteci','ressam','mimar','eczacı','veteriner','berber','terzi','şoför',
-  // Eğitim
-  'sınıf','öğrenci','diploma','üniversite','fakülte','burs','proje',
-  // Sağlık
-  'hastane','ameliyat','muayene','röntgen','tansiyon','diyabet','alerji','vitamin','tedavi',
-  // Teknoloji
-  'yazılım','donanım','ekran','klavye','kamera','şarj',
-  // Spor
-  'futbol','basketbol','voleybol','tenis','yüzme','jimnastik','turnuva','kupa',
-  // Sanat eğlence
-  'konser','sergi','müze','heykel','masal',
-  // Duygular
-  'üzüntü','korku','sevgi','nefret','öfke','şaşkınlık','gurur','utanç',
-  // Soyut
-  'sorumluluk','özgürlük','adalet','barış','demokrasi','kültür','medeniyet','ekonomi','strateji',
-  // Ek fiil kökleri
-  'bakım','gelişme','izleme','kazanım','kullanım','satış','üretim',
-]);
-
-// TDK API doğrulama önbelleği
-
-/* ═══════════════════════════════════════════
-   KELİME DOĞRULAMA — Netlify Serverless Proxy
-   Kendi sunucumuz TDK'ya sorar → CORS yok, güvenilir
-═══════════════════════════════════════════ */
-
-// Netlify function endpoint — aynı domain, CORS sorunu yok
-const KELIME_API = '/api/kelime';
-
-// TDK önbelleği — aynı kelimeyi tekrar sorma
-const wordCache = new Map();
-
-async function checkWordTDK(word) {
-  // 1. Offline listede var mı? → anında kabul (yaygın kelimeler)
-  if (WORD_DICT.has(word)) return { valid: true, source: 'offline' };
-
-  // 2. Önbellekte var mı? → tekrar sorma
-  if (wordCache.has(word)) return { valid: wordCache.get(word), source: 'cache' };
-
-  // 3. Netlify function üzerinden TDK'ya sor
-  try {
-    const res = await fetch(`${KELIME_API}?w=${encodeURIComponent(word)}`, {
-      signal: AbortSignal.timeout(6000),
-    });
-
-    const data = await res.json();
-
-    // valid: true  → TDK'da var
-    // valid: false → TDK'da yok
-    // valid: null  → TDK erişilemedi → offline listeye düş
-    if (data.valid === null) {
-      // Sunucu erişilemedi — offline listede yoksa reddet
-      wordCache.set(word, false);
-      return { valid: false, source: 'server_error' };
-    }
-
-    wordCache.set(word, data.valid);
-    return { valid: data.valid, source: data.source || 'tdk' };
-
-  } catch(e) {
-    // Ağ hatası (offline mod, Netlify yoksa vs.)
-    // Yerel geliştirme / test: offline listeyle yetinelim
-    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    if (isLocal) {
-      // Local'de çalışıyorsa offline listeyi kullan
-      return { valid: false, source: 'local_offline' };
-    }
-    wordCache.set(word, false);
-    return { valid: false, source: 'network_error' };
-  }
-}
-
-// All words as array for bot lookup
-const WORD_LIST = Array.from(WORD_DICT);
-
-
-/* ═══════════════════════════════════════════
-   RANKS
-═══════════════════════════════════════════ */
-const RANKS = [
-  { id:'bronze',   label:'Bronz',   emoji:'🥉', min:0,    cls:'rank-bronze'  },
-  { id:'silver',   label:'Gümüş',   emoji:'🥈', min:500,  cls:'rank-silver'  },
-  { id:'gold',     label:'Altın',   emoji:'🥇', min:1500, cls:'rank-gold'    },
-  { id:'platinum', label:'Platin',  emoji:'💎', min:3500, cls:'rank-platinum'},
-  { id:'diamond',  label:'Elmas',   emoji:'💠', min:7000, cls:'rank-diamond' },
-  { id:'master',   label:'Usta',    emoji:'👑', min:12000,cls:'rank-master'  },
-];
-
-function getRank(score) {
-  let rank = RANKS[0];
-  for (const r of RANKS) { if (score >= r.min) rank = r; }
-  return rank;
-}
-
-/* ═══════════════════════════════════════════
-   ACHIEVEMENTS
-═══════════════════════════════════════════ */
-const ACHIEVEMENTS = [
-  { id:'first_win',   icon:'🏆', name:'İlk Zafer',      desc:'İlk maçını kazan', req: u => u.wins >= 1 },
-  { id:'words_50',    icon:'📝', name:'Kelime Ustası',   desc:'50 kelime gönder',  req: u => u.totalWords >= 50 },
-  { id:'words_200',   icon:'📚', name:'Kelime Dehası',   desc:'200 kelime gönder', req: u => u.totalWords >= 200 },
-  { id:'wins_10',     icon:'🎯', name:'On Şerit',        desc:'10 maç kazan',      req: u => u.wins >= 10 },
-  { id:'matches_20',  icon:'🎮', name:'Deneyimli',       desc:'20 maç oyna',       req: u => u.totalMatches >= 20 },
-  { id:'streak_5',    icon:'🔥', name:'Ateşli Seri',     desc:'5 kelime serisi yap',req:u => u.bestStreak >= 5 },
-  { id:'powerup_use', icon:'⚡', name:'Güç Kullanıcısı', desc:'İlk gücü kullan',   req: u => (u.powerupsUsed||0) >= 1 },
-  { id:'level_5',     icon:'⬆️', name:'Deneyimli',       desc:'Seviye 5\'e ulaş',  req: u => u.level >= 5 },
-  { id:'score_1000',  icon:'💯', name:'Bin Puan',        desc:'1000 toplam puan',   req: u => u.totalScore >= 1000 },
-  { id:'chat_first',  icon:'💬', name:'Sosyal Kelebek',  desc:'İlk mesajını gönder',req:u => (u.chatMessages||0) >= 1 },
-];
-
-/* ═══════════════════════════════════════════
-   QUESTS
-═══════════════════════════════════════════ */
-function getDailyQuests() {
-  return [
-    { id:'dq1', icon:'⚔️', title:'3 Maç Oyna',   reward:100, rewardType:'coins', current:()=> Math.min((user?.todayMatches||0),3), max:3 },
-    { id:'dq2', icon:'🏆', title:'1 Maç Kazan',   reward:150, rewardType:'coins', current:()=> Math.min((user?.todayWins||0),1),    max:1 },
-    { id:'dq3', icon:'📝', title:'20 Kelime Gönder',reward:80, rewardType:'coins',current:()=> Math.min((user?.todayWords||0),20),  max:20 },
-  ];
-}
-function getWeeklyQuests() {
-  return [
-    { id:'wq1', icon:'🎮', title:'15 Maç Oyna',   reward:500, rewardType:'coins', current:()=> Math.min((user?.weekMatches||0),15), max:15 },
-    { id:'wq2', icon:'🏆', title:'5 Maç Kazan',   reward:750, rewardType:'coins', current:()=> Math.min((user?.weekWins||0),5),     max:5  },
-    { id:'wq3', icon:'⚡', title:'Güç Kullan',     reward:3,   rewardType:'gems',  current:()=> Math.min((user?.powerupsUsed||0),1), max:1  },
-  ];
-}
-
-/* ═══════════════════════════════════════════
-   POWERUPS
-═══════════════════════════════════════════ */
-const POWERUP_DEFS = [
-  { id:'extra_time', icon:'⏰', label:'Ekstra',  desc:'Ekstra Süre (+15sn)',     price:80  },
-  { id:'hint',       icon:'💡', label:'İpucu',   desc:'İlk harfi göster',        price:60  },
-  { id:'shield',     icon:'🛡️', label:'Kalkan',  desc:'1 hatalı kelimeyi koru', price:100 },
-  { id:'pass',       icon:'⏭️', label:'Pas',     desc:'Sırayı geç',              price:50  },
-  { id:'double',     icon:'2️⃣', label:'Çift',   desc:'Bu tur puanı 2x',         price:120 },
-];
-
-/* ═══════════════════════════════════════════
-   STORE ITEMS
-═══════════════════════════════════════════ */
-const STORE_ITEMS = {
-  powerups: [
-    { id:'pack_extra_time_3', icon:'⏰', name:'3x Ekstra Süre', price:200, currency:'coins', type:'powerup', puId:'extra_time', qty:3 },
-    { id:'pack_hint_3',       icon:'💡', name:'3x İpucu',       price:150, currency:'coins', type:'powerup', puId:'hint',       qty:3 },
-    { id:'pack_shield_2',     icon:'🛡️', name:'2x Kalkan',      price:180, currency:'coins', type:'powerup', puId:'shield',     qty:2 },
-    { id:'pack_pass_5',       icon:'⏭️', name:'5x Pas',         price:220, currency:'coins', type:'powerup', puId:'pass',       qty:5 },
-    { id:'pack_double_2',     icon:'2️⃣', name:'2x Çift Puan',  price:250, currency:'coins', type:'powerup', puId:'double',     qty:2 },
-    { id:'powerup_bundle',    icon:'⚡', name:'Güç Paketi',     price:15,  currency:'gems',  type:'bundle', isNew:true },
-  ],
-  avatars: [
-    { id:'av_dragon', icon:'🐉', name:'Ejderha',       price:200, currency:'coins', type:'avatar' },
-    { id:'av_robot',  icon:'🦾', name:'Siborg',        price:300, currency:'coins', type:'avatar' },
-    { id:'av_wizard', icon:'🧙', name:'Büyücü',        price:250, currency:'coins', type:'avatar' },
-    { id:'av_ninja',  icon:'🥷', name:'Ninja',         price:200, currency:'coins', type:'avatar' },
-    { id:'av_alien',  icon:'👽', name:'Uzaylı',        price:350, currency:'coins', type:'avatar' },
-    { id:'av_crown',  icon:'👑', name:'Kral / Kraliçe',price:10,  currency:'gems',  type:'avatar', isNew:true },
-  ],
-  coins: [
-    { id:'coins_100',  icon:'🪙', name:'100 Coin',  price:1,  currency:'gems',  type:'currency', coins:100 },
-    { id:'coins_300',  icon:'🪙', name:'300 Coin',  price:2,  currency:'gems',  type:'currency', coins:300 },
-    { id:'coins_1000', icon:'🪙', name:'1000 Coin', price:5,  currency:'gems',  type:'currency', coins:1000 },
-    { id:'gems_10',    icon:'💎', name:'10 Gem',    price:0.99,currency:'real', type:'currency', gems:10  },
-    { id:'gems_50',    icon:'💎', name:'50 Gem',    price:3.99,currency:'real', type:'currency', gems:50  },
-    { id:'gems_200',   icon:'💎', name:'200 Gem',   price:9.99,currency:'real', type:'currency', gems:200, isNew:true },
-  ],
-  cosmetics: [
-    { id:'theme_dark',  icon:'🌙', name:'Karanlık Tema',  price:5,  currency:'gems',  type:'cosmetic' },
-    { id:'theme_fire',  icon:'🔥', name:'Ateş Teması',    price:8,  currency:'gems',  type:'cosmetic' },
-    { id:'effect_star', icon:'⭐', name:'Yıldız Efekti',  price:300, currency:'coins', type:'cosmetic' },
-    { id:'frame_gold',  icon:'🖼️', name:'Altın Çerçeve',  price:10, currency:'gems',  type:'cosmetic' },
-  ],
-};
-
-/* ═══════════════════════════════════════════
-   ONBOARDING
-═══════════════════════════════════════════ */
-let selectedAvatar = '🦊';
-let selectedCountry = 'TR';
-
-function renderOnboard() {
-  // Avatar grid
-  const ag = document.getElementById('avatar-grid');
-  if (ag) ag.innerHTML = AVATARS.map(a => `
-    <div class="avatar-opt ${a===selectedAvatar?'selected':''}" onclick="selectAvatar('${a}')">${a}</div>
-  `).join('');
-  // Country grid kaldırıldı — TR sabit
-}
-
-function selectAvatar(a) {
-  selectedAvatar = a;
-  document.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
-  event.target.closest('.avatar-opt').classList.add('selected');
-  haptic.light();
-}
-function selectCountry(code) {
-  selectedCountry = code;
-  document.querySelectorAll('.country-opt').forEach(el => el.classList.remove('selected'));
-  event.target.closest('.country-opt').classList.add('selected');
-  haptic.light();
-}
-
-function completeOnboard() {
-  const username = document.getElementById('onboard-username').value.trim();
-  if (!username) { haptic.error(); showToast('⚠️ Kullanıcı adı gir!'); return; }
-  if (username.length < 2) { haptic.error(); showToast('⚠️ En az 2 karakter!'); return; }
-
-  const country = COUNTRIES.find(c => c.code === selectedCountry) || COUNTRIES[0];
-  user = {
-    id: Math.random().toString(36).substr(2,9),
-    username, avatar: selectedAvatar,
-    country: country.code, countryName: country.name, countryFlag: country.flag,
-    level: 1, xp: 0, xpNeeded: 100,
-    totalScore: 0, totalMatches: 0, wins: 0, totalWords: 0,
-    bestStreak: 0,
-    coins: 200, gems: 5,
-    achievements: [],
-    powerups: { extra_time:1, hint:1, shield:0, pass:1, double:0 },
-    inventory: [],
-    chatMessages: 0,
-    todayMatches: 0, todayWins: 0, todayWords: 0,
-    weekMatches: 0, weekWins: 0,
-    powerupsUsed: 0,
-    joinedAt: Date.now(),
-  };
-  saveUser();
-  haptic.success();
-  goScreen('screen-home');
-}
-
-function saveUser() { LS.set('user', user); }
-
-/* ═══════════════════════════════════════════
-   HOME RENDER
-═══════════════════════════════════════════ */
-function renderHome() {
-  if (!user) return;
-  const rank = getRank(user.totalScore);
-
-  document.getElementById('home-avatar').textContent   = user.avatar;
-  document.getElementById('home-username').textContent = user.username;
-  document.getElementById('home-rank').className       = 'rank-badge ' + rank.cls;
-  document.getElementById('home-rank').textContent     = rank.emoji + ' ' + rank.label;
-  document.getElementById('home-coins').textContent    = '🪙 ' + fmtNum(user.coins);
-  document.getElementById('home-gems').textContent     = '💎 ' + user.gems;
-  document.getElementById('home-wins').textContent     = fmtNum(user.wins);
-  document.getElementById('home-matches').textContent  = fmtNum(user.totalMatches);
-  document.getElementById('home-score').textContent    = fmtNum(user.totalScore);
-  document.getElementById('home-streak').textContent   = user.bestStreak || 0;
-
-  // Daily quests preview
-  const qp = document.getElementById('home-quests-preview');
-  const quests = getDailyQuests().slice(0,2);
-  qp.innerHTML = quests.map(q => {
-    const cur = q.current(); const pct = Math.min(100, (cur/q.max)*100);
-    return `<div class="quest-card" style="margin-bottom:.17rem;">
-      <div class="quest-header">
-        <div class="quest-icon">${q.icon}</div>
-        <div class="quest-info">
-          <div class="quest-title">${q.title}</div>
-          <div class="quest-sub">${cur}/${q.max}</div>
-        </div>
-        <div class="quest-reward">+${q.reward} ${q.rewardType==='coins'?'🪙':'💎'}</div>
-      </div>
-      <div class="prog-bar"><div class="prog-fill gold" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-
-  // LB preview
-  renderLbPreview();
-}
-
-function renderLbPreview() {
-  const preview = document.getElementById('home-lb-preview');
-  const fake = getFakePlayers(5);
-  preview.innerHTML = fake.slice(0,3).map((p,i) => {
-    const medals = ['🥇','🥈','🥉'];
-    return `<div class="lb-row ${['top1','top2','top3'][i]}" style="margin-bottom:.17rem;">
-      <div class="lb-rank">${medals[i]}</div>
-      <div class="lb-avatar">${p.avatar}</div>
-      <div class="lb-info"><div class="lb-name">${p.name}</div><div class="lb-sub">${p.country}</div></div>
-      <div class="lb-score">${fmtNum(p.score)}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════════
-   FAKE PLAYERS (simulated leaderboard/matchmaking)
-═══════════════════════════════════════════ */
-const FAKE_NAMES = ['KelimeKralı','SözUstası','TürkçeBil','HarfAvcısı','ZincirMaster','SözcükNinja','YıldızHarf','Semantik','KelimeBey','Linguist'];
-const FAKE_AVATARS = ['🐺','🦁','🐯','🐻','🦝','🐼','🦋','🐲','👾','🤖'];
-
-function getFakePlayers(n) {
-  const me = { name:user?.username||'Ben', avatar:user?.avatar||'🦊', score:user?.totalScore||0, country:user?.countryFlag||'🇹🇷', isMe:true };
-  const others = Array.from({length:n}, (_,i) => ({
-    name: FAKE_NAMES[i % FAKE_NAMES.length],
-    avatar: FAKE_AVATARS[i % FAKE_AVATARS.length],
-    score: Math.floor(Math.random() * 5000 + 200),
-    country: '🇹🇷',
-  }));
-  const all = [me, ...others].sort((a,b) => b.score - a.score);
-  return all;
-}
-
-/* ═══════════════════════════════════════════
-   LEADERBOARD
-═══════════════════════════════════════════ */
-let currentLbTab = 'global';
-
-function switchLbTab(tab) {
-  currentLbTab = tab;
-  document.querySelectorAll('#lb-tabs .tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  renderLeaderboard(tab);
-}
-
-function renderLeaderboard(tab) {
-  const list = document.getElementById('lb-list');
-  const players = getFakePlayers(20);
-  const medals = ['🥇','🥈','🥉'];
-
-  list.innerHTML = players.map((p,i) => {
-    const rankCls = i < 3 ? `top${i+1}` : (p.isMe ? 'me' : '');
-    const rankDisplay = i < 3 ? medals[i] : (i+1);
-    return `<div class="lb-row ${rankCls}">
-      <div class="lb-rank">${rankDisplay}</div>
-      <div class="lb-avatar">${p.avatar}</div>
-      <div class="lb-info">
-        <div class="lb-name">${p.name} ${p.isMe?'<span style="font-size:.28rem;color:var(--p2);">(Sen)</span>':''}</div>
-        <div class="lb-sub">${p.country}</div>
-      </div>
-      <div class="lb-score">${fmtNum(p.score)}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════════
-   PROFILE
-═══════════════════════════════════════════ */
-function renderProfile() {
-  if (!user) return;
-  const rank = getRank(user.totalScore);
-  document.getElementById('profile-avatar-big').textContent  = user.avatar;
-  document.getElementById('profile-username').textContent    = user.username;
-  document.getElementById('profile-level').textContent       = user.level;
-  document.getElementById('profile-coins').textContent       = '🪙 ' + fmtNum(user.coins);
-  document.getElementById('profile-gems').textContent        = '💎 ' + user.gems;
-  document.getElementById('profile-country').textContent     = (user.countryName||'Türkiye');
-  const rb = document.getElementById('profile-rank-badge');
-  rb.className = 'rank-badge ' + rank.cls;
-  rb.textContent = rank.emoji + ' ' + rank.label;
-
-  const pct = Math.min(100, (user.xp / user.xpNeeded) * 100);
-  document.getElementById('profile-xp-text').textContent = `${user.xp} / ${user.xpNeeded}`;
-  document.getElementById('profile-xp-bar').style.width = pct + '%';
-
-  document.getElementById('p-total').textContent   = user.totalMatches;
-  document.getElementById('p-wins').textContent    = user.wins;
-  document.getElementById('p-winrate').textContent = user.totalMatches > 0 ? Math.round(user.wins/user.totalMatches*100)+'%' : '0%';
-  document.getElementById('p-words').textContent   = user.totalWords;
-  document.getElementById('p-score').textContent   = fmtNum(user.totalScore);
-  document.getElementById('p-streak').textContent  = user.bestStreak || 0;
-
-  // Achievements
-  const ach = document.getElementById('profile-achievements');
-  if (!ach) return;
-  ach.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.22rem;">` +
-    ACHIEVEMENTS.map(a => {
-      const earned = user.achievements.includes(a.id);
-      return `<div class="store-card" style="opacity:${earned?1:.35};" title="${a.desc}">
-        <div class="store-card-icon">${a.icon}</div>
-        <div style="font-size:.3rem;font-weight:700;color:var(--muted);line-height:1.1;">${a.name}</div>
-      </div>`;
-    }).join('') + `</div>`;
-
-  // Inventory powerups
-  const inv = document.getElementById('profile-inventory');
-  const pu = user.powerups || {};
-  inv.innerHTML = `<div style="display:flex;gap:.22rem;flex-wrap:wrap;">` +
-    POWERUP_DEFS.map(p => `
-      <div style="display:flex;align-items:center;gap:.12rem;background:var(--card);border:1.5px solid var(--border);border-radius:.38rem;padding:.17rem .33rem;">
-        <span style="font-size:.5rem;">${p.icon}</span>
-        <span style="font-size:.36rem;font-weight:800;color:var(--text);">×${pu[p.id]||0}</span>
-      </div>
-    `).join('') + `</div>`;
-}
-
-/* ═══════════════════════════════════════════
-   STORE
-═══════════════════════════════════════════ */
-let currentStoreTab = 'powerups';
-let pendingBuyItem = null;
-
-function switchStoreTab(tab) {
-  currentStoreTab = tab;
-  document.querySelectorAll('#screen-store .tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  renderStore(tab);
-}
-
-function renderStore(tab) {
-  const grid = document.getElementById('store-grid');
-  const items = STORE_ITEMS[tab] || [];
-  document.getElementById('store-coins').textContent = '🪙 ' + fmtNum(user?.coins||0);
-  document.getElementById('store-gems').textContent  = '💎 ' + (user?.gems||0);
-
-  grid.innerHTML = items.map(item => {
-    const owned = isOwned(item);
-    const priceStr = item.currency === 'coins' ? `🪙 ${item.price}` :
-                     item.currency === 'gems'  ? `💎 ${item.price}` :
-                     `₺${item.price}`;
-    return `<div class="store-card ${owned?'owned':''}" onclick="openBuyModal('${item.id}')">
-      ${item.isNew ? `<div class="store-new-badge">YENİ</div>` : ''}
-      <div class="store-card-icon">${item.icon}</div>
-      <div class="store-card-name">${item.name}</div>
-      ${owned
-        ? `<div class="store-card-owned">✓ Sahip</div>`
-        : `<div class="store-card-price">${priceStr}</div>`}
-    </div>`;
-  }).join('');
-}
-
-function isOwned(item) {
-  if (!user) return false;
-  if (item.type === 'avatar') return (user.inventory||[]).includes(item.id);
-  if (item.type === 'cosmetic') return (user.inventory||[]).includes(item.id);
-  return false;
-}
-
-function openBuyModal(itemId) {
-  const allItems = Object.values(STORE_ITEMS).flat();
-  const item = allItems.find(i => i.id === itemId);
-  if (!item) return;
-  if (isOwned(item)) { showToast('✓ Zaten sahipsin!'); return; }
-  haptic.light();
-
-  pendingBuyItem = item;
-  const priceStr = item.currency === 'coins' ? `🪙 ${item.price}` :
-                   item.currency === 'gems'  ? `💎 ${item.price}` :
-                   `₺${item.price}`;
-  document.getElementById('store-confirm-title').textContent = item.name;
-  document.getElementById('store-confirm-icon').textContent  = item.icon;
-  document.getElementById('store-confirm-price').textContent = priceStr;
-  document.getElementById('store-confirm-modal').classList.add('open');
-}
-
-function confirmBuy() {
-  const item = pendingBuyItem;
-  if (!item || !user) return;
-
-  if (item.currency === 'coins') {
-    if (user.coins < item.price) { haptic.error(); showToast('⚠️ Yeterli coin yok!'); closeModal('store-confirm-modal'); return; }
-    user.coins -= item.price;
-  } else if (item.currency === 'gems') {
-    if (user.gems < item.price) { haptic.error(); showToast('⚠️ Yeterli gem yok!'); closeModal('store-confirm-modal'); return; }
-    user.gems -= item.price;
-  } else if (item.currency === 'real') {
-    showToast('💳 Gerçek para ödemesi yakında!'); closeModal('store-confirm-modal'); return;
-  }
-
-  // Apply purchase
-  if (item.type === 'powerup') {
-    user.powerups = user.powerups || {};
-    user.powerups[item.puId] = (user.powerups[item.puId] || 0) + item.qty;
-  } else if (item.type === 'avatar' || item.type === 'cosmetic') {
-    user.inventory = user.inventory || [];
-    if (!user.inventory.includes(item.id)) user.inventory.push(item.id);
-  } else if (item.type === 'bundle') {
-    POWERUP_DEFS.forEach(p => { user.powerups[p.id] = (user.powerups[p.id]||0) + 2; });
-  } else if (item.type === 'currency') {
-    if (item.coins) user.coins += item.coins;
-    if (item.gems)  user.gems  += item.gems;
-  }
-
-  saveUser();
-  haptic.success();
-  showToast('✅ Satın alındı!');
-  closeModal('store-confirm-modal');
-  renderStore(currentStoreTab);
-  document.getElementById('store-coins').textContent = '🪙 ' + fmtNum(user.coins);
-  document.getElementById('store-gems').textContent  = '💎 ' + user.gems;
-}
-
-/* ═══════════════════════════════════════════
-   REWARDED AD
-═══════════════════════════════════════════ */
-function showRewardedAd() {
-  haptic.light();
-  document.getElementById('rewarded-ad-modal').classList.add('open');
-}
-
-function claimRewardedAd(type) {
-  if (!user) return;
-  haptic.success();
-  closeModal('rewarded-ad-modal');
-  setTimeout(() => {
-    if (type === 'coins')   { user.coins += 50;  showToast('🪙 +50 Coin kazandın!'); }
-    else if (type === 'powerup') {
-      const pus = POWERUP_DEFS;
-      const rnd = pus[Math.floor(Math.random()*pus.length)];
-      user.powerups[rnd.id] = (user.powerups[rnd.id]||0) + 1;
-      showToast(`${rnd.icon} ${rnd.desc} kazandın!`);
-    }
-    else if (type === 'gems')  { user.gems += 5;  showToast('💎 +5 Gem kazandın!'); }
-    else if (type === 'chest') {
-      const rnd = Math.random();
-      if (rnd < .4)      { user.coins += 100; showToast('📦 Sandık: 🪙 100 Coin!'); }
-      else if (rnd < .7) { user.gems  += 3;  showToast('📦 Sandık: 💎 3 Gem!'); }
-      else               { const p = POWERUP_DEFS[Math.floor(Math.random()*POWERUP_DEFS.length)]; user.powerups[p.id]=(user.powerups[p.id]||0)+1; showToast(`📦 Sandık: ${p.icon} ${p.desc}!`); }
-    }
-    saveUser();
-    refreshCurrencyDisplays();
-  }, 200);
-}
-
-function refreshCurrencyDisplays() {
-  if (!user) return;
-  ['home-coins','store-coins','profile-coins'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = '🪙 ' + fmtNum(user.coins);
-  });
-  ['home-gems','store-gems','profile-gems'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = '💎 ' + user.gems;
-  });
-}
-
-/* ═══════════════════════════════════════════
-   GLOBAL CHAT
-═══════════════════════════════════════════ */
-const CHAT_MESSAGES = [
-  {name:'KelimeKralı', avatar:'🐺', text:'Merhaba herkese! 👋', time:'10:32'},
-  {name:'SözUstası',   avatar:'🦁', text:'Kim oynamak ister?', time:'10:33'},
-  {name:'TürkçeBil',   avatar:'🐯', text:'Yeni rekor kırdım! 🎉', time:'10:35'},
-  {name:'HarfAvcısı',  avatar:'🐻', text:'Eşleşme arıyorum', time:'10:37'},
-];
-
-function renderGlobalChat() {
-  const msgs = document.getElementById('global-chat-messages');
-  msgs.innerHTML = CHAT_MESSAGES.map(m => {
-    const isMe = user && m.name === user.username;
-    return `<div class="chat-bubble ${isMe?'mine':''}">
-      <div class="chat-avatar">${m.avatar}</div>
-      <div class="chat-msg">
-        ${!isMe ? `<div class="chat-name">${m.name}</div>` : ''}
-        <div class="chat-text">${escapeHtml(m.text)}</div>
-        <div class="chat-time">${m.time}</div>
-      </div>
-    </div>`;
-  }).join('');
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function sendGlobalChat() {
-  const input = document.getElementById('global-chat-input');
-  const text = input.value.trim();
-  if (!text || !user) return;
-  if (text.length > 150) { showToast('⚠️ Mesaj çok uzun!'); return; }
-
-  const filtered = filterProfanity(text);
-  const now = new Date();
-  const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-  CHAT_MESSAGES.push({ name:user.username, avatar:user.avatar, text:filtered, time });
-  user.chatMessages = (user.chatMessages||0) + 1;
-  saveUser();
-  input.value = '';
-  renderGlobalChat();
-  haptic.light();
-  checkAchievements();
-}
-
-const PROFANITY = ['küfür','küfür2']; // placeholder
-function filterProfanity(text) {
-  let t = text;
-  PROFANITY.forEach(w => { t = t.replace(new RegExp(w,'gi'), '***'); });
-  return t;
-}
-function escapeHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-/* ═══════════════════════════════════════════
-   QUESTS
-═══════════════════════════════════════════ */
-let currentQuestTab = 'daily';
-function switchQuestTab(tab) {
-  currentQuestTab = tab;
-  document.querySelectorAll('#screen-quests .tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  renderQuests(tab);
-}
-function renderQuests(tab) {
-  const list = document.getElementById('quests-list');
-  let quests = [];
-  if (tab === 'daily')        quests = getDailyQuests();
-  else if (tab === 'weekly')  quests = getWeeklyQuests();
-  else                        quests = ACHIEVEMENTS;
-
-  if (tab === 'achievements') {
-    list.innerHTML = ACHIEVEMENTS.map(a => {
-      const earned = user?.achievements?.includes(a.id);
-      return `<div class="quest-card" style="opacity:${earned?1:.6};">
-        <div class="quest-header">
-          <div class="quest-icon">${a.icon}</div>
-          <div class="quest-info">
-            <div class="quest-title">${a.name}</div>
-            <div class="quest-sub">${a.desc}</div>
-          </div>
-          <div class="quest-reward ${earned?'quest-complete':''}">${earned?'✅':'🔒'}</div>
-        </div>
-      </div>`;
-    }).join('');
-    return;
-  }
-
-  list.innerHTML = quests.map(q => {
-    const cur = q.current(); const pct = Math.min(100,(cur/q.max)*100);
-    const done = cur >= q.max;
-    return `<div class="quest-card">
-      <div class="quest-header">
-        <div class="quest-icon">${q.icon}</div>
-        <div class="quest-info">
-          <div class="quest-title">${q.title}</div>
-          <div class="quest-sub">${cur}/${q.max}</div>
-        </div>
-        <div class="quest-reward ${done?'quest-complete':''}">
-          ${done ? '✅' : `+${q.reward} ${q.rewardType==='coins'?'🪙':'💎'}`}
-        </div>
-      </div>
-      <div class="prog-bar"><div class="prog-fill gold" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════════
-   SETTINGS
-═══════════════════════════════════════════ */
-function renderSettings() {
-  if (!user) return;
-  document.getElementById('settings-avatar').textContent  = user.avatar;
-  document.getElementById('settings-username').textContent = user.username;
-  const country = COUNTRIES.find(c=>c.code===user.country) || COUNTRIES[0];
-  document.getElementById('settings-country').textContent  = country.name + ' ' + country.flag;
-
-  ['sfx','music','hapticEnabled'].forEach(k => {
-    const el = document.getElementById('toggle-' + (k==='hapticEnabled'?'haptic':k));
-    if (el) el.classList.toggle('on', !!settings[k]);
-  });
-  const ts = document.getElementById('settings-timer');
-  if (ts) ts.value = settings.defaultTimer || 15;
-}
-function toggleSetting(k) {
-  settings[k] = !settings[k];
-  LS.set('settings', settings);
-  renderSettings();
-  haptic.light();
-}
-function saveSettingVal(k, v) {
-  settings[k] = isNaN(v) ? v : Number(v);
-  LS.set('settings', settings);
-}
-function editUsername() {
-  const name = prompt('Yeni kullanıcı adın:', user?.username || '');
-  if (!name || !name.trim()) return;
-  if (name.trim().length < 2) { showToast('⚠️ En az 2 karakter!'); return; }
-  user.username = name.trim().slice(0,16);
-  saveUser();
-  showToast('✅ Kullanıcı adı güncellendi!');
-  renderSettings();
-}
-function resetData() {
-  if (!confirm('Tüm verileri sıfırlamak istediğinden emin misin?')) return;
-  LS.del('user'); LS.del('settings');
-  user = null; settings = { sfx:true, music:true, hapticEnabled:true, defaultTimer:15 };
-  location.reload();
-}
-
-/* ═══════════════════════════════════════════
-   ROOM SCREEN
-═══════════════════════════════════════════ */
-let roomCode = '';
-let roomMaxPlayers = 4;
-let roomPlayers = [];
-
-function generateRoomCode() {
-  return Math.random().toString(36).substr(2,6).toUpperCase();
-}
-
-function showRoomTab(tab) {
-  document.getElementById('room-create-panel').style.display = tab==='create' ? '' : 'none';
-  document.getElementById('room-join-panel').style.display   = tab==='join'   ? '' : 'none';
-  document.getElementById('tab-create').classList.toggle('active', tab==='create');
-  document.getElementById('tab-join').classList.toggle('active', tab==='join');
-}
-
-function changeMaxPlayers(delta) {
-  roomMaxPlayers = Math.max(2, Math.min(5, roomMaxPlayers + delta));
-  document.getElementById('room-max-players').textContent = roomMaxPlayers;
-  document.getElementById('room-max-label').textContent   = roomMaxPlayers;
-  haptic.light();
-}
-
-function copyRoomCode() {
-  navigator.clipboard?.writeText(roomCode).catch(()=>{});
-  showToast('📋 Kod kopyalandı: ' + roomCode);
-  haptic.success();
-}
-
-function renderRoomPlayers() {
-  const list = document.getElementById('room-players-list');
-  let html = '';
-  for (let i = 0; i < roomMaxPlayers; i++) {
-    const p = roomPlayers[i];
-    if (p && !p.isEmpty) {
-      html += `<div class="room-player-slot ready">
-        <div class="slot-num">${i+1}</div>
-        <div style="font-size:.6rem;">${p.avatar}</div>
-        <div style="font-size:.4rem;font-weight:800;color:var(--text);flex:1;">${p.name}</div>
-        ${p.isMe ? '<span class="pill-tag pill-p">Sen</span>' : '<span class="pill-tag pill-green">Hazır</span>'}
-      </div>`;
-    } else {
-      html += `<div class="room-player-slot empty">
-        <div class="slot-num">${i+1}</div>
-        <div style="font-size:.55rem;">👤</div>
-        <div style="font-size:.38rem;color:var(--dim);flex:1;">Boş slot</div>
-      </div>`;
-    }
-  }
-  list.innerHTML = html;
-  document.getElementById('room-player-count').textContent = roomPlayers.filter(p=>!p.isEmpty).length;
-}
-
-async function joinRoom() {
-  const code = document.getElementById('join-code-input').value.trim().toUpperCase();
-  if (code.length !== 6) { haptic.error(); showToast('⚠️ 6 haneli kod gir!'); return; }
-
-  if (!SB_CONFIGURED) {
-    showToast('⚠️ Supabase kurulmamış — bot ile deneme modu');
-    setTimeout(() => startOfflineGame('bot'), 1000);
-    return;
-  }
-
-  showToast('🔍 Oda aranıyor: ' + code);
-  haptic.light();
-
-  try {
-    const rooms = await sbGet(`game_rooms?id=eq.${code}&status=eq.waiting`);
-    if (!rooms.length) {
-      showToast('❌ Oda bulunamadı veya doldu'); haptic.error(); return;
-    }
-    const room = rooms[0];
-    const players = room.players || [];
-    if (players.length >= room.max_players) {
-      showToast('❌ Oda dolu!'); haptic.error(); return;
-    }
-    players.push(_myPlayerObj());
-    await sbPatch(`game_rooms?id=eq.${code}`, { players });
-    mmRoomId = code;
-    await _joinRoomChannel(code);
-    showRoomTab('create');
-    document.getElementById('room-code-display').textContent = code;
-    showToast('✅ Odaya katıldın: ' + code);
-    haptic.success();
-  } catch(e) {
-    showToast('❌ Bağlantı hatası'); haptic.error();
-  }
-}
-
-async function startRoomGame() {
-  haptic.success();
-  if (!SB_CONFIGURED) {
-    // Offline: botlarla doldur
-    const needed = roomMaxPlayers - roomPlayers.filter(p=>!p.isEmpty).length;
-    for (let i = 0; i < needed; i++) {
-      roomPlayers.push({ name:FAKE_NAMES[i]||'Bot', avatar:FAKE_AVATARS[i]||'🤖', isBot:true });
-    }
-    startGameWithPlayers(roomPlayers);
-    return;
-  }
-  // Online: host oyunu başlatır
-  const state = mmChannel?.presenceState() || {};
-  const online = Object.values(state).flat();
-  if (online.length < 2) {
-    showToast('⚠️ En az 2 oyuncu gerekli'); return;
-  }
-  await _hostStartOnlineGame(mmRoomId, online);
-}
-
-async function initRoom() {
-  roomCode = SB_CONFIGURED
-    ? Math.random().toString(36).substr(2,6).toUpperCase()
-    : generateRoomCode();
-
-  document.getElementById('room-code-display').textContent = roomCode;
-  roomMaxPlayers = 4;
-  document.getElementById('room-max-players').textContent = roomMaxPlayers;
-  document.getElementById('room-max-label').textContent   = roomMaxPlayers;
-
-  roomPlayers = [{ name:user?.username||'Oyuncu', avatar:user?.avatar||'🦊', isMe:true }];
-  roomPlayers.push({ name:'Bekleniyor...', avatar:'👤', isEmpty:true });
-  renderRoomPlayers();
-  showRoomTab('create');
-
-  if (SB_CONFIGURED) {
-    // Odayı veritabanında aç
-    try {
-      await sbPost('game_rooms', {
-        id: roomCode,
-        host_id: user.id,
-        status: 'waiting',
-        max_players: roomMaxPlayers,
-        players: [_myPlayerObj()],
-      });
-      mmRoomId = roomCode;
-      await _joinRoomChannel(roomCode);
-      showToast('🏠 Oda oluşturuldu: ' + roomCode);
-    } catch(e) {
-      showToast('⚠️ Oda oluşturulamadı — çevrimdışı mod');
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════
-   SUPABASE REALTIME — ONLINE MULTİPLAYER
-   ─────────────────────────────────────────
-   Kurulum: supabase.com → yeni proje → 
-   aşağıdaki SUPABASE_URL ve SUPABASE_KEY'i
-   kendi projenle değiştir.
-   
-   Gerekli SQL (Supabase SQL Editor'da çalıştır):
-   
-   CREATE TABLE game_rooms (
-     id TEXT PRIMARY KEY,
-     host_id TEXT,
-     status TEXT DEFAULT 'waiting',
-     max_players INT DEFAULT 4,
-     current_word TEXT,
-     word_history JSONB DEFAULT '[]',
-     players JSONB DEFAULT '[]',
-     created_at TIMESTAMPTZ DEFAULT NOW()
-   );
-   ALTER TABLE game_rooms ENABLE ROW LEVEL SECURITY;
-   CREATE POLICY "public_access" ON game_rooms FOR ALL USING (true);
-═══════════════════════════════════════════ */
-
-// ▼▼▼ BURAYA KENDİ SUPABASE BİLGİLERİNİ GİR ▼▼▼
-const SUPABASE_URL = 'https://dhpmuxqpozxxyeehfiqn.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRocG11eHFwb3p4eHllZWhmaXFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzOTIxMDIsImV4cCI6MjA4ODk2ODEwMn0.A-Qgss8-uACYc7apgZGf85G6wXt2Wgxg7DY3oaAHQcw';
-// ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲
-
-const SB_CONFIGURED = SUPABASE_URL !== 'https://SENIN_PROJE_ID.supabase.co';
-const SB_HEADERS = {
-  'apikey': SUPABASE_KEY,
-  'Authorization': `Bearer ${SUPABASE_KEY}`,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
-};
-
-// Supabase JS CDN (Realtime için)
-let supabaseClient = null;
-
-function initSupabase() {
-  if (!SB_CONFIGURED || supabaseClient) return;
-  if (!window.supabase) {
-    console.warn('Supabase JS yüklenmedi');
-    return;
-  }
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  console.log('✅ Supabase bağlantısı hazır');
-}
-
-async function sbGet(path) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: SB_HEADERS });
-  if (!r.ok) throw new Error(`Supabase ${r.status}`);
-  return r.json();
-}
-async function sbPost(path, body) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method:'POST', headers: SB_HEADERS, body: JSON.stringify(body)
-  });
-  if (!r.ok) throw new Error(`Supabase ${r.status}`);
-  return r.json();
-}
-async function sbPatch(path, body) {
-  await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method:'PATCH', headers: SB_HEADERS, body: JSON.stringify(body)
-  });
-}
-async function sbDelete(path) {
-  await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method:'DELETE', headers: SB_HEADERS
-  });
-}
-
-/* ─── MATCHMAKING ─── */
-let mmTimer = null;
-let mmSeconds = 0;
-let mmChannel = null;   // Supabase Realtime kanalı
-let mmRoomId  = null;   // katılınan oda ID
-
-function startMatchmaking() {
-  goScreen('screen-matchmaking');
-  mmSeconds = 0;
-  document.getElementById('mm-country').textContent = 'Türkiye 🇹🇷';
-  document.getElementById('mm-players-list').innerHTML = '';
-  document.getElementById('mm-start-bots').style.display = 'none';
-
-  if (!SB_CONFIGURED) {
-    // Supabase kurulmamış → bot moduyla devam
-    showToast('⚠️ Supabase kurulmamış, bot ile oynuyorsun', 4000);
-    _startFakeMatchmaking();
-    return;
-  }
-  _startRealMatchmaking();
-}
-
-function _startFakeMatchmaking() {
-  const mmList = document.getElementById('mm-players-list');
-  const fakeMM = FAKE_NAMES.slice(0,3).map((n,i)=>({name:n,avatar:FAKE_AVATARS[i]}));
-  mmTimer = setInterval(() => {
-    mmSeconds++;
-    document.getElementById('mm-timer').textContent = `Bekleniyor: ${mmSeconds}s`;
-    if (mmSeconds <= 3 && mmSeconds-1 < fakeMM.length) {
-      const p = fakeMM[mmSeconds-1];
-      mmList.innerHTML += `<div class="player-row"><div class="player-avatar">${p.avatar}</div><div class="player-info"><div class="player-name">${p.name}</div></div><span class="pill-tag pill-green">Hazır</span></div>`;
-    }
-    if (mmSeconds >= 5) {
-      clearInterval(mmTimer);
-      document.getElementById('mm-start-bots').style.display = '';
-      setTimeout(_joinWithBots, 600);
-    }
-  }, 1000);
-}
-
-async function _startRealMatchmaking() {
-  const mmList = document.getElementById('mm-players-list');
-
-  try {
-    // 1. Bekleyen oda var mı?
-    const waiting = await sbGet(`game_rooms?status=eq.waiting&select=id,players&order=created_at.asc&limit=1`);
-    
-    if (waiting.length > 0) {
-      // Mevcut odaya katıl
-      mmRoomId = waiting[0].id;
-      const players = waiting[0].players || [];
-      players.push(_myPlayerObj());
-      await sbPatch(`game_rooms?id=eq.${mmRoomId}`, { players });
-      await _joinRoomChannel(mmRoomId);
-    } else {
-      // Yeni oda aç
-      mmRoomId = 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
-      await sbPost('game_rooms', {
-        id: mmRoomId,
-        host_id: user.id,
-        status: 'waiting',
-        max_players: 4,
-        current_word: null,
-        word_history: [],
-        players: [_myPlayerObj()],
-      });
-      await _joinRoomChannel(mmRoomId);
-      // 30 saniye sonra hâlâ başlamadıysa bot ekle
-      mmTimer = setTimeout(() => {
-        document.getElementById('mm-start-bots').style.display = '';
-        showToast('⏳ Oyuncu bulunamadı, botlarla başla', 4000);
-      }, 30000);
-    }
-
-    // Sayaç
-    const countInterval = setInterval(() => {
-      mmSeconds++;
-      document.getElementById('mm-timer').textContent = `Bekleniyor: ${mmSeconds}s`;
-    }, 1000);
-    mmTimer = countInterval;
-
-  } catch(e) {
-    console.error('Matchmaking hatası:', e);
-    showToast('⚠️ Bağlantı hatası, bot ile oynuyorsun');
-    _startFakeMatchmaking();
-  }
-}
-
-async function _joinRoomChannel(roomId) {
-  if (!supabaseClient) return;
-  const mmList = document.getElementById('mm-players-list');
-
-  // Realtime kanalına katıl — Presence (kim odada?) + Broadcast (oyun hamlesi)
-  mmChannel = supabaseClient.channel(`room:${roomId}`, {
-    config: { presence: { key: user.id } }
-  });
-
-  mmChannel
-    .on('presence', { event: 'sync' }, () => {
-      const state = mmChannel.presenceState();
-      const online = Object.values(state).flat();
-      mmList.innerHTML = online.map(p => `
-        <div class="player-row">
-          <div class="player-avatar">${p.avatar||'🦊'}</div>
-          <div class="player-info"><div class="player-name">${p.username||'Oyuncu'}</div></div>
-          <span class="pill-tag pill-green">Hazır</span>
-        </div>`).join('');
-      
-      // 2+ oyuncu → başlat
-      if (online.length >= 2) {
-        const isHost = online[0]?.userId === user.id;
-        if (isHost) setTimeout(() => _hostStartOnlineGame(roomId, online), 1500);
-      }
-    })
-    .on('broadcast', { event: 'game_start' }, ({ payload }) => {
-      _clientJoinGame(payload);
-    })
-    .on('broadcast', { event: 'word_played' }, ({ payload }) => {
-      _onRemoteWordPlayed(payload);
-    })
-    .subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        await mmChannel.track({
-          userId:   user.id,
-          username: user.username,
-          avatar:   user.avatar,
-          score:    user.totalScore || 0,
-        });
-      }
-    });
-}
-
-function _myPlayerObj() {
-  return {
-    id: user.id, name: user.username, avatar: user.avatar,
-    score: 0, lives: 3, isMe: true, eliminated: false, comboStreak: 0,
-  };
-}
-
-async function _hostStartOnlineGame(roomId, presencePlayers) {
-  // Host, oyunu başlatıp broadcast eder
-  const players = presencePlayers.map((p, i) => ({
-    id: p.userId, name: p.username, avatar: p.avatar||'🦊',
-    score: 0, lives: 3, eliminated: false, comboStreak: 0,
-    isMe: p.userId === user.id,
-  }));
-
-  const startWord = WORD_LIST.filter(w=>w.length>=4)[Math.floor(Math.random()*500)];
-
-  await sbPatch(`game_rooms?id=eq.${roomId}`, {
-    status: 'playing',
-    current_word: startWord,
-  });
-
-  mmChannel.send({
-    type: 'broadcast',
-    event: 'game_start',
-    payload: { players, startWord, roomId },
-  });
-
-  // Host da başlar
-  _startOnlineGame(players, startWord, roomId);
-}
-
-function _clientJoinGame(payload) {
-  const { players, startWord, roomId } = payload;
-  // Set isMe correctly for this client
-  const corrected = players.map(p => ({ ...p, isMe: p.id === user.id }));
-  _startOnlineGame(corrected, startWord, roomId);
-}
-
-function _startOnlineGame(players, startWord, roomId) {
-  clearTimeout(mmTimer);
-  clearInterval(mmTimer);
-
-  game = {
-    mode: 'online',
-    roomId,
-    channel: mmChannel,
-    players,
-    currentPlayerIdx: 0,
-    currentWord: startWord,
-    wordHistory: [{ word: startWord, player: 'Başlangıç', isStart: true }],
-    usedWords: new Set([startWord]),
-    timer: settings.defaultTimer || 15,
-    timerInterval: null,
-    round: 1,
-    totalWords: 0,
-    myScore: 0,
-    myCombo: 0,
-    doublePowerupActive: false,
-    shieldActive: false,
-    gameOver: false,
-    startTime: Date.now(),
-    isPractice: false,
-    isOnline: true,
-  };
-
-  document.getElementById('game-mode-label').textContent = '🌐 Online Oyun';
-  goScreen('screen-game');
-  setTimeout(() => {
-    renderGamePlayers();
-    renderPowerups();
-    clearChat();
-    updateWordDisplay();
-    updateWordHistory();
-    startTurn();
-  }, 300);
-}
-
-// Rakip kelime oynadığında
-function _onRemoteWordPlayed(payload) {
-  if (!game || game.gameOver) return;
-  const { word, playerId, score, nextPlayerIdx, round } = payload;
-
-  // Kendi hamlemi tekrar işleme
-  if (playerId === user.id) return;
-
-  const player = game.players.find(p => p.id === playerId);
-  if (!player) return;
-
-  // State'i host'tan gelen değerlerle senkronize et
-  game.currentWord = word;
-  game.usedWords.add(word);
-  game.wordHistory.push({ word, player: player.name });
-  player.score = score;
-  game.totalWords++;
-  if (nextPlayerIdx !== undefined) game.currentPlayerIdx = nextPlayerIdx;
-  if (round !== undefined) game.round = round;
-
-  clearInterval(game.timerInterval);
-  updateWordDisplay();
-  updateWordHistory();
-  addGameChat(`✅ ${player.name}: ${word}`);
-  renderGamePlayers();
-
-  startTurn(); // Sıra doğru oyuncuya geçer
-}
-
-// Online oyunda kendi hamlemi yayınla — nextPlayerIdx de gönder
-function _broadcastWordPlayed(word, score) {
-  if (!game?.channel || !game.isOnline) return;
-
-  // Sonraki sırayı hesapla
-  let nextIdx = game.currentPlayerIdx;
-  do {
-    nextIdx = (nextIdx + 1) % game.players.length;
-  } while (game.players[nextIdx].eliminated);
-
-  game.channel.send({
-    type: 'broadcast',
-    event: 'word_played',
-    payload: {
-      word,
-      playerId: user.id,
-      score,
-      nextPlayerIdx: nextIdx,
-      round: game.round + 1,
-    },
-  });
-}
-
-function cancelMatchmaking() {
-  clearTimeout(mmTimer);
-  clearInterval(mmTimer);
-  if (mmChannel) { mmChannel.unsubscribe(); mmChannel = null; }
-  if (mmRoomId && SB_CONFIGURED) {
-    sbDelete(`game_rooms?id=eq.${mmRoomId}`).catch(()=>{});
-    mmRoomId = null;
-  }
-  goScreen('screen-home');
-}
-
-function _joinWithBots() {
-  clearInterval(mmTimer);
-  const botPlayers = [
-    { name:user?.username||'Sen', avatar:user?.avatar||'🦊', isMe:true },
-    ...FAKE_NAMES.slice(0,2).map((n,i) => ({name:n, avatar:FAKE_AVATARS[i], isBot:true})),
-  ];
-  startGameWithPlayers(botPlayers, 'online');
-}
-
-function startWithBots() { _joinWithBots(); }
-
-/* ═══════════════════════════════════════════
-   GAME ENGINE
-═══════════════════════════════════════════ */
-let game = null;
-
-function startOfflineGame(mode) {
-  haptic.medium();
-  let players = [];
-  if (mode === 'bot') {
-    players = [
-      { name:user?.username||'Sen', avatar:user?.avatar||'🦊', isMe:true },
-      { name:'Yapay Zeka', avatar:'🤖', isBot:true },
-    ];
-  } else if (mode === 'pass') {
-    const p2name = prompt('2. oyuncunun adı:') || 'Oyuncu 2';
-    players = [
-      { name:user?.username||'Oyuncu 1', avatar:user?.avatar||'🦊', isMe:true },
-      { name:p2name, avatar:'🐺' },
-    ];
-  } else if (mode === 'practice') {
-    players = [
-      { name:user?.username||'Sen', avatar:user?.avatar||'🦊', isMe:true, practice:true },
-    ];
-  }
-  startGameWithPlayers(players, mode);
-}
-
-function startGameWithPlayers(players, mode='bot') {
-  game = {
-    mode,
-    players: players.map((p,i) => ({
-      ...p, id:i, score:0, lives:3, eliminated:false,
-      comboStreak:0,
-    })),
-    currentPlayerIdx: 0,
-    currentWord: null,
-    wordHistory: [],
-    usedWords: new Set(),
-    timer: settings.defaultTimer || 15,
-    timerInterval: null,
-    round: 1,
-    totalWords: 0,
-    myScore: 0,
-    myCombo: 0,
-    doublePowerupActive: false,
-    shieldActive: false,
-    extraTimeUsed: false,
-    gameOver: false,
-    startTime: Date.now(),
-    isPractice: mode === 'practice',
-  };
-  document.getElementById('game-mode-label').textContent =
-    mode==='bot' ? '🤖 Bot ile Oyna' :
-    mode==='pass' ? '📱 Sıra Sende' :
-    mode==='practice' ? '📚 Pratik' :
-    mode==='online' ? '🌐 Online' : '🔒 Özel Oda';
-
-  goScreen('screen-game');
-  setTimeout(() => {
-    renderGamePlayers();
-    renderPowerups();
-    clearChat();
-    pickStartWord();
-    startTurn();
-  }, 300);
-}
-
-function pickStartWord() {
-  // Pick a random word as the first "previous word" shown
-  const starters = WORD_LIST.filter(w => w.length >= 4);
-  const w = starters[Math.floor(Math.random() * starters.length)];
-  game.currentWord = w;
-  game.usedWords.add(w);
-  game.wordHistory.push({ word:w, player:'Başlangıç', isStart:true });
-  updateWordDisplay();
-}
-
-function renderGamePlayers() {
-  const container = document.getElementById('game-players-list');
-  container.innerHTML = game.players.map((p,i) => {
-    const isActive = i === game.currentPlayerIdx && !p.eliminated;
-    return `<div class="player-row ${isActive?'active-turn':''} ${p.eliminated?'eliminated':''}" id="gp-${i}" style="min-width:3.5rem;padding:.17rem .28rem;flex-shrink:0;">
-      <div class="player-avatar">
-        ${p.avatar}
-        ${isActive ? '<div class="turn-ring"></div>' : ''}
-      </div>
-      <div class="player-info">
-        <div class="player-name" style="font-size:.33rem;">${p.name.length>8?p.name.substr(0,7)+'…':p.name}</div>
-        <div class="player-score"><span class="pts">${p.score}</span> pts${p.lives!==undefined?` · ${'❤️'.repeat(Math.max(0,p.lives))}`:''}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function startTurn() {
-  if (game.gameOver) return;
-
-  const player = game.players[game.currentPlayerIdx];
-  renderGamePlayers();
-
-  // Online'da: sadece benim sıramda input açık
-  const isMe = game.isPractice ? true : player.isMe;
-  const input = document.getElementById('word-input');
-  const submitBtn = document.getElementById('submit-btn');
-
-  input.value = '';
-  input.disabled = !isMe;
-  submitBtn.disabled = !isMe;
-
-  if (isMe) {
-    document.getElementById('word-status-text').textContent = '⌨️ Kelimeni yaz, Enter ile gönder';
-    setTimeout(() => input.focus(), 100);
-  } else {
-    document.getElementById('word-status-text').textContent = `⏳ ${player.name} düşünüyor...`;
-  }
-
-  document.getElementById('game-round').textContent = game.round;
-  document.getElementById('game-score-display').textContent = '⭐ ' + (game.myScore||0);
-
-  // Start timer
-  let timeLeft = game.timer;
-  clearInterval(game.timerInterval);
-  updateTimerRing(timeLeft, game.timer);
-  document.getElementById('timer-text').textContent = timeLeft;
-
-  game.timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById('timer-text').textContent = timeLeft;
-    updateTimerRing(timeLeft, game.timer);
-
-    const ring = document.getElementById('timer-ring');
-    if (timeLeft <= 5)      ring.classList.add('danger'), ring.classList.remove('warn');
-    else if (timeLeft <= 8) ring.classList.add('warn');
-
-    if (timeLeft <= 0) {
-      clearInterval(game.timerInterval);
-      onTimeout(player);
-    }
-  }, 1000);
-
-  // Bot turn — sadece offline/practice modunda
-  if (!isMe && !game.isOnline) {
-    const botDelay = 1500 + Math.random() * 2000;
-    setTimeout(() => {
-      if (!game.gameOver) botPlay(player);
-    }, botDelay);
-  }
-}
-
-function updateTimerRing(current, total) {
-  const ring = document.getElementById('timer-ring');
-  const circumference = 175.9;
-  const offset = circumference - (current / total) * circumference;
-  ring.style.strokeDashoffset = offset;
-  if (current > total * 0.5) { ring.style.stroke = 'var(--p)'; ring.classList.remove('warn','danger'); }
-  else if (current > total * 0.25) { ring.style.stroke = 'var(--acc2)'; }
-  else { ring.style.stroke = 'var(--acc)'; }
-}
-
-function onTimeout(player) {
-  haptic.error();
-  addGameChat(`⏰ ${player.name} zamanı bitti!`);
-  player.score = Math.max(0, player.score - 50);
-  player.comboStreak = 0;
-  if (game.players.filter(p=>!p.eliminated).length > 1) {
-    nextTurn();
-  } else {
-    endGame();
-  }
-}
-
-function botPlay(player) {
-  if (game.gameOver) return;
-  const lastChar = game.currentWord.slice(-1).toLowerCase();
-  const candidates = WORD_LIST.filter(w =>
-    w[0] === lastChar && !game.usedWords.has(w)
-  );
-  if (candidates.length === 0) {
-    // Bot can't find a word — timeout
-    onTimeout(player);
-    return;
-  }
-  const word = candidates[Math.floor(Math.random() * candidates.length)];
-  processWord(word, player);
-}
-
-function onWordInput() {
-  const val = document.getElementById('word-input').value.toLowerCase();
-  document.getElementById('word-input').value = val;
-}
-function onWordKeyDown(e) {
-  if (e.key === 'Enter') { e.preventDefault(); submitWord(); }
-}
-
-async function submitWord() {
-  const input = document.getElementById('word-input');
-  const word = input.value.trim().toLowerCase();
-  if (!word) return;
-  const player = game.players[game.currentPlayerIdx];
-  if (!player.isMe && !game.isPractice) return;
-  clearInterval(game.timerInterval);
-
-  // TDK kontrolü sırasında "kontrol ediliyor..." göster
-  document.getElementById('word-status-text').textContent = '🔍 Sözlükte kontrol ediliyor...';
-  document.getElementById('submit-btn').disabled = true;
-  input.disabled = true;
-
-  const result = await checkWordTDK(word);
-  input.disabled = false;
-  document.getElementById('submit-btn').disabled = false;
-
-  processWord(word, player, result.valid, result.source);
-}
-
-function processWord(word, player, isKnownValid, validSource) {
-  const lastChar = game.currentWord.slice(-1).toLowerCase();
-  const input = document.getElementById('word-input');
-
-  // Validate — TDK sonucu veya offline kontrol
-  const inDict = isKnownValid !== undefined ? isKnownValid : WORD_DICT.has(word);
-  if (!inDict) {
-    // Invalid word
-    haptic.error();
-    input.classList.add('error');
-    setTimeout(() => input.classList.remove('error'), 600);
-    document.getElementById('word-status-text').textContent = 
-      validSource === 'offline' ? `❌ "${word}" kelime listesinde yok!` :
-      `❌ "${word}" TDK sözlüğünde bulunamadı!`;
-    addGameChat(`❌ ${player.name}: "${word}" geçersiz!`);
-    if (game.shieldActive && player.isMe) {
-      game.shieldActive = false;
-      showToast('🛡️ Kalkan kullanıldı!');
-      startTurn(); return;
-    }
-    penalizePlayer(player);
-    return;
-  }
-  if (word[0] !== lastChar) {
-    haptic.error();
-    input.classList.add('error');
-    setTimeout(() => input.classList.remove('error'), 600);
-    document.getElementById('word-status-text').textContent = `❌ "${word.toUpperCase()}" → "${lastChar.toUpperCase()}" ile başlamalı!`;
-    addGameChat(`❌ ${player.name}: "${word}" harf uymuyor!`);
-    if (game.shieldActive && player.isMe) {
-      game.shieldActive = false; showToast('🛡️ Kalkan kullanıldı!'); startTurn(); return;
-    }
-    penalizePlayer(player);
-    return;
-  }
-  if (game.usedWords.has(word)) {
-    haptic.error();
-    input.classList.add('error');
-    setTimeout(() => input.classList.remove('error'), 600);
-    document.getElementById('word-status-text').textContent = `🔁 "${word}" zaten söylendi!`;
-    penalizePlayer(player);
-    return;
-  }
-
-  // Valid!
-  haptic.success();
-  input.classList.add('success');
-  setTimeout(() => input.classList.remove('success'), 600);
-
-  // Score
-  const timeRemaining = parseInt(document.getElementById('timer-text').textContent) || 0;
-  let pts = word.length * 10;
-  pts += Math.floor(timeRemaining * 3); // speed bonus
-  player.comboStreak++;
-  if (player.comboStreak >= 3) pts += player.comboStreak * 5;
-  if (game.doublePowerupActive && player.isMe) { pts *= 2; game.doublePowerupActive = false; }
-
-  player.score += pts;
-  if (player.isMe || game.isPractice) {
-    game.myScore = player.score;
-    game.myCombo = player.comboStreak;
-    if (player.comboStreak >= 3) renderCombo(player.comboStreak);
-  }
-
-  game.currentWord = word;
-  game.usedWords.add(word);
-  game.wordHistory.push({ word, player:player.name });
-  game.totalWords++;
-
-  if (player.isMe || game.isPractice) {
-    user.totalWords++;
-    user.todayWords++;
-    if (player.comboStreak > (user.bestStreak||0)) user.bestStreak = player.comboStreak;
-  }
-
-  updateWordDisplay();
-  updateWordHistory();
-  addGameChat(`✅ ${player.name}: ${word} (+${pts})`);
-  document.getElementById('word-status-text').textContent = `✅ +${pts} puan!`;
-  document.getElementById('game-score-display').textContent = '⭐ ' + (game.myScore||0);
-
-  // Online: hamleyi diğer oyunculara yayınla
-  if (player.isMe && game.isOnline) {
-    _broadcastWordPlayed(word, player.score);
-    // Online'da nextTurn broadcast sonrası gelir — sırayı biz de ilerletelim
-    const activePlayers2 = game.players.filter(p=>!p.eliminated);
-    if (activePlayers2.length <= 1) { setTimeout(endGame, 600); return; }
-    setTimeout(nextTurn, 700);
-    return;
-  }
-
-  // Check win conditions (offline/bot)
-  const activePlayers = game.players.filter(p=>!p.eliminated);
-  if (activePlayers.length <= 1 && !game.isPractice) {
-    setTimeout(endGame, 600);
-    return;
-  }
-
-  setTimeout(nextTurn, 700);
-}
-
-function penalizePlayer(player) {
-  player.comboStreak = 0;
-  player.score = Math.max(0, player.score - 30);
-  player.lives = Math.max(0, (player.lives||3) - 1);
-  if (player.lives <= 0 && game.players.filter(p=>!p.eliminated).length > 1) {
-    player.eliminated = true;
-    addGameChat(`💀 ${player.name} elendi!`);
-    if (player.isMe) { showToast('💀 Elendi! Oyun bitti...'); setTimeout(endGame, 1500); return; }
-  }
-  renderGamePlayers();
-  nextTurn();
-}
-
-function nextTurn() {
-  const active = game.players.filter(p=>!p.eliminated);
-  if (active.length <= 1 && !game.isPractice) { setTimeout(endGame, 600); return; }
-
-  do {
-    game.currentPlayerIdx = (game.currentPlayerIdx + 1) % game.players.length;
-  } while (game.players[game.currentPlayerIdx].eliminated);
-
-  game.round++;
-  startTurn();
-}
-
-function updateWordDisplay() {
-  const w = game.currentWord || '';
-  const before = w.slice(0,-1);
-  const last = w.slice(-1);
-  document.getElementById('word-before-last').textContent = before.toUpperCase();
-  document.getElementById('word-last-char').textContent   = last.toUpperCase();
-  document.getElementById('next-start-hint').textContent  = (last||'?').toUpperCase();
-}
-
-function updateWordHistory() {
-  const hist = document.getElementById('word-history');
-  hist.innerHTML = game.wordHistory.slice(-15).map(h => {
-    const w = h.word;
-    return `<div class="hist-word"><span>${w.slice(0,-1).toUpperCase()}</span><span class="hl">${w.slice(-1).toUpperCase()}</span></div>`;
-  }).join('');
-  hist.scrollLeft = hist.scrollWidth;
-}
-
-function renderCombo(streak) {
-  const area = document.getElementById('combo-area');
-  area.innerHTML = `<span class="combo-badge">🔥 ${streak}x Kombo!</span>`;
-  setTimeout(() => { area.innerHTML = ''; }, 2000);
-}
-
-/* ═══════════════════════════════════════════
-   POWERUPS IN GAME
-═══════════════════════════════════════════ */
-function renderPowerups() {
-  const bar = document.getElementById('powerups-bar');
-  bar.innerHTML = POWERUP_DEFS.map(p => {
-    const count = (user?.powerups||{})[p.id] || 0;
-    return `<div class="powerup-btn ${count>0?'active':'used'}" onclick="usePowerup('${p.id}')" title="${p.desc}">
-      ${count > 0 ? `<div class="powerup-count">${count}</div>` : ''}
-      <div class="powerup-icon">${p.icon}</div>
-      <div class="powerup-label">${p.label}</div>
-    </div>`;
-  }).join('');
-}
-
-function usePowerup(id) {
-  if (!user || !game) return;
-  const count = user.powerups[id] || 0;
-  if (count <= 0) { showToast('⚠️ Bu güç yok!'); return; }
-  const player = game.players[game.currentPlayerIdx];
-  if (!player.isMe && !game.isPractice) { showToast('⚠️ Sadece senin turuunda!'); return; }
-
-  haptic.medium();
-  user.powerups[id]--;
-  user.powerupsUsed = (user.powerupsUsed||0) + 1;
-  saveUser();
-
-  if (id === 'extra_time') {
-    game.timer += 15;
-    // restart timer with new value
-    clearInterval(game.timerInterval);
-    let tl = parseInt(document.getElementById('timer-text').textContent) + 15;
-    document.getElementById('timer-text').textContent = tl;
-    updateTimerRing(tl, game.timer);
-    game.timerInterval = setInterval(() => {
-      tl--;
-      document.getElementById('timer-text').textContent = tl;
-      updateTimerRing(tl, game.timer);
-      if (tl <= 0) { clearInterval(game.timerInterval); onTimeout(player); }
-    }, 1000);
-    showToast('⏰ +15 saniye eklendi!');
-    addGameChat('⏰ Ekstra süre kullanıldı!');
-  } else if (id === 'hint') {
-    const lastChar = game.currentWord.slice(-1).toLowerCase();
-    const hints = WORD_LIST.filter(w => w[0]===lastChar && !game.usedWords.has(w));
-    if (hints.length > 0) {
-      const h = hints[Math.floor(Math.random()*hints.length)];
-      showToast(`💡 İpucu: "${h.slice(0,2).toUpperCase()}..." ile başlıyor`);
-    } else { showToast('💡 İpucu bulunamadı!'); }
-  } else if (id === 'shield') {
-    game.shieldActive = true;
-    showToast('🛡️ Kalkan aktif! Bir hatalı kelime korunacak.');
-    addGameChat('🛡️ Kalkan aktif!');
-  } else if (id === 'pass') {
-    showToast('⏭️ Sıra geçildi!');
-    addGameChat(`⏭️ ${player.name} sırayı geçti!`);
-    clearInterval(game.timerInterval);
-    nextTurn();
-  } else if (id === 'double') {
-    game.doublePowerupActive = true;
-    showToast('2️⃣ Sonraki kelimenin puanı 2x!');
-  }
-
-  renderPowerups();
-  checkAchievements();
-}
-
-/* ═══════════════════════════════════════════
-   GAME CHAT
-═══════════════════════════════════════════ */
-let gameChatOpen = false;
-const gameChatMsgs = [];
-
-function toggleGameChat() {
-  gameChatOpen = !gameChatOpen;
-  const panel = document.getElementById('game-chat-panel');
-  panel.style.display = gameChatOpen ? 'flex' : 'none';
-  if (gameChatOpen) renderGameChatMsgs();
-}
-function addGameChat(text) {
-  const now = new Date();
-  const t = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-  gameChatMsgs.push({ text, time:t, system:true });
-  if (gameChatOpen) renderGameChatMsgs();
-}
-function sendGameChat() {
-  const input = document.getElementById('game-chat-input');
-  const text = input.value.trim();
-  if (!text || !user) return;
-  const now = new Date();
-  const t = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-  gameChatMsgs.push({ text:filterProfanity(text), time:t, name:user.username, avatar:user.avatar, isMe:true });
-  input.value = '';
-  renderGameChatMsgs();
-}
-function renderGameChatMsgs() {
-  const cont = document.getElementById('game-chat-messages');
-  cont.innerHTML = gameChatMsgs.map(m => {
-    if (m.system) return `<div style="font-size:.32rem;color:var(--muted);text-align:center;padding:.05rem 0;">${m.text}</div>`;
-    return `<div class="chat-bubble ${m.isMe?'mine':''}">
-      <div class="chat-avatar">${m.avatar}</div>
-      <div class="chat-msg">
-        <div class="chat-name">${m.name}</div>
-        <div class="chat-text">${escapeHtml(m.text)}</div>
-      </div>
-    </div>`;
-  }).join('');
-  cont.scrollTop = cont.scrollHeight;
-}
-function clearChat() {
-  gameChatMsgs.length = 0;
-  gameChatOpen = false;
-  document.getElementById('game-chat-panel').style.display = 'none';
-}
-
-/* ═══════════════════════════════════════════
-   VOICE CHAT (simulated)
-═══════════════════════════════════════════ */
-let voiceActive = false;
-function toggleVoice() {
-  voiceActive = !voiceActive;
-  const btn = document.getElementById('voice-btn');
-  btn.classList.toggle('active', voiceActive);
-  btn.classList.toggle('speaking', voiceActive);
-  btn.textContent = voiceActive ? '🎤 Açık' : '🎤 Ses';
-  showToast(voiceActive ? '🎤 Ses sohbeti açıldı' : '🔇 Ses sohbeti kapatıldı');
-  haptic.light();
-}
-
-/* ═══════════════════════════════════════════
-   GAME MENU
-═══════════════════════════════════════════ */
-function showGameMenu() {
-  clearInterval(game?.timerInterval);
-  document.getElementById('game-menu-modal').classList.add('open');
-}
-function forfeitGame() {
-  closeModal('game-menu-modal');
-  clearInterval(game?.timerInterval);
-  endGame(true);
-}
-
-/* ═══════════════════════════════════════════
-   END GAME
-═══════════════════════════════════════════ */
-function endGame(forfeited = false) {
-  if (game?.gameOver) return;
-  if (game) game.gameOver = true;
-  clearInterval(game?.timerInterval);
-  haptic.heavy();
-
-  // Sort players by score
-  const sorted = [...(game?.players||[])].sort((a,b) => b.score - a.score);
-  const winner = sorted[0];
-  const iWon = winner?.isMe || (game?.isPractice);
-
-  // Update user stats
-  if (user && game) {
-    user.totalMatches++;
-    user.todayMatches++;
-    user.weekMatches++;
-    if (!forfeited && (iWon || game.isPractice)) {
-      user.wins++;
-      user.todayWins++;
-      user.weekWins++;
-    }
-    // XP + coins
-    const earnedXP    = Math.floor((game.myScore||0) * 0.5) + (iWon?50:10);
-    const earnedCoins = Math.floor((game.myScore||0) * 0.1) + (iWon?100:20);
-    user.xp        += earnedXP;
-    user.coins     += earnedCoins;
-    user.totalScore += game.myScore||0;
-    user.gems      += iWon ? 1 : 0;
-    // Level up
-    while (user.xp >= user.xpNeeded) {
-      user.xp -= user.xpNeeded;
-      user.level++;
-      user.xpNeeded = Math.floor(user.xpNeeded * 1.4);
-      showAchievementPopup('⬆️', `Seviye ${user.level}!`);
-    }
-    saveUser();
-    checkAchievements();
-
-    // Build result
-    goScreen('screen-result');
-    document.getElementById('result-crown').textContent = iWon ? '🏆' : '😢';
-    document.getElementById('result-winner').textContent = iWon ? (game.isPractice?'Pratik Bitti!':'Kazandın!') : `${winner?.name||'Bot'} Kazandı!`;
-    document.getElementById('result-sub').textContent = `${game.totalWords} kelime söylendi`;
-
-    document.getElementById('result-scores').innerHTML = sorted.map((p,i) => `
-      <div class="lb-row ${['top1','top2','top3'][i]||''}" style="margin-bottom:.17rem;">
-        <div class="lb-rank">${['🥇','🥈','🥉'][i]||i+1}</div>
-        <div class="lb-avatar">${p.avatar}</div>
-        <div class="lb-info"><div class="lb-name">${p.name}</div></div>
-        <div class="lb-score">${p.score} pts</div>
-      </div>`).join('');
-
-    document.getElementById('result-rewards').innerHTML = `
-      <div class="card" style="flex:1;text-align:center;">
-        <div style="font-size:.55rem;">⭐</div>
-        <div style="font-size:.5rem;font-weight:800;color:var(--p2);">+${earnedXP} XP</div>
-        <div style="font-size:.3rem;color:var(--muted);">Deneyim</div>
-      </div>
-      <div class="card" style="flex:1;text-align:center;">
-        <div style="font-size:.55rem;">🪙</div>
-        <div style="font-size:.5rem;font-weight:800;color:var(--gold);">+${earnedCoins}</div>
-        <div style="font-size:.3rem;color:var(--muted);">Coin</div>
-      </div>
-      ${iWon?`<div class="card" style="flex:1;text-align:center;">
-        <div style="font-size:.55rem;">💎</div>
-        <div style="font-size:.5rem;font-weight:800;color:var(--acc3);">+1</div>
-        <div style="font-size:.3rem;color:var(--muted);">Gem</div>
-      </div>`:''}
-    `;
-    pushAd('result-banner');
-  }
-}
-
-function playAgain() {
-  if (!game) { goScreen('screen-home'); return; }
-  const mode = game.mode;
-  const prevPlayers = game.players;
-  goScreen('screen-home');
-  setTimeout(() => startGameWithPlayers(prevPlayers.map(p=>({...p,score:0,lives:3,eliminated:false,comboStreak:0})), mode), 500);
-}
-
-/* ═══════════════════════════════════════════
-   ACHIEVEMENTS
-═══════════════════════════════════════════ */
-function checkAchievements() {
-  if (!user) return;
-  user.achievements = user.achievements || [];
-  ACHIEVEMENTS.forEach(a => {
-    if (!user.achievements.includes(a.id) && a.req(user)) {
-      user.achievements.push(a.id);
-      showAchievementPopup(a.icon, a.name);
-      user.coins += 50; // bonus
-    }
-  });
-  saveUser();
-}
-
-let achTimer = null;
-function showAchievementPopup(icon, name) {
-  document.getElementById('ach-icon').textContent = icon;
-  document.getElementById('ach-name').textContent = name;
-  const popup = document.getElementById('achievement-popup');
-  popup.classList.add('show');
-  clearTimeout(achTimer);
-  achTimer = setTimeout(() => popup.classList.remove('show'), 3500);
-  haptic.success();
-}
-
-/* ═══════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════ */
-function fmtNum(n) {
-  if (!n && n !== 0) return '0';
-  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000)    return (n/1000).toFixed(1) + 'K';
-  return String(n);
-}
-
-/* ═══════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════ */
-function init() {
-  // Supabase bağlantısını başlat
-  initSupabase();
-
-  // Render onboard avatars / countries always
-  renderOnboard();
-
-  if (!user) {
-    // First launch
-    setTimeout(() => {
-      hideLoading(true);
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById('screen-onboard').classList.add('active');
-    }, 1400);
-  } else {
-    // Push initial state for back button
-    history.pushState({ screen: 'screen-home' }, '', '');
-
-    setTimeout(() => {
-      hideLoading(true);
-      goScreen('screen-home');
-      pushAd('ad-home-banner');
-      checkAchievements();
-    }, 1400);
-  }
-}
-
-// Game object patch to fix reference error
-
-
-window.addEventListener('DOMContentLoaded', init);
-</script>
-
-<!-- Service Worker Registration -->
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT — Modüler Mimari
+     Yükleme sırası önemli!
+═══════════════════════════════════════════ -->
+
+<!-- 1. Core: State yönetimi (önce yüklenmeli) -->
+<script src="/src/core/state.js"></script>
+
+<!-- 2. Core: Router ve App -->
+<script src="/src/core/router.js"></script>
+<script src="/src/core/app.js"></script>
+
+<!-- 3. Services: Supabase ve Auth -->
+<script src="/src/services/supabase.js"></script>
+<script src="/src/services/auth.js"></script>
+
+<!-- 4. Game: Kelime sistemi ve AI -->
+<script src="/src/game/wordValidator.js"></script>
+<script src="/src/game/aiBot.js"></script>
+
+<!-- 5. UI: Ekran render fonksiyonları -->
+<script src="/src/ui/screens.js"></script>
+
+<!-- 6. Game Engine ve Matchmaking -->
+<script src="/src/game/gameEngine.js"></script>
+<script src="/src/game/matchmaking.js"></script>
+
+<!-- 7. Systems: Oyun içi sistemler -->
+<script src="/src/systems/tournaments.js"></script>
+<script src="/src/systems/friends.js"></script>
+<script src="/src/systems/battlepass.js"></script>
+<script src="/src/systems/dailyRewards.js"></script>
+<script src="/src/systems/wordCollection.js"></script>
+
+<!-- Service Worker Kaydı -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
