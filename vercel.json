@@ -1,7 +1,18 @@
 {
   "version": 2,
   "routes": [
+<<<<<<< HEAD
     { "src": "/api/kelime", "dest": "/api/kelime.js" },
     { "src": "/(.*)", "dest": "/index.html" }
+=======
+    {
+      "src": "/api/kelime",
+      "dest": "/api/kelime.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+>>>>>>> 689810f6f47d9b71ec0de66f8f406c0c5f5bd0f5
   ]
 }
