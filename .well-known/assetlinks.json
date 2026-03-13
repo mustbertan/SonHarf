@@ -1,8 +1,10 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.mustbertan.sonharf",
-        "sha256_cert_fingerprints": ["4C:BB:6B:53:64:56:F1:F6:9C:B6:D0:DA:51:CA:65:93:29:92:90:EB:E9:1B:99:FB:C6:34:1F:C4:F4:1B:66:AF"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.mustbertan.sonharf",
+    "sha256_cert_fingerprints": [
+      "4C:BB:6B:53:64:56:F1:F6:9C:B6:D0:DA:51:CA:65:93:29:92:90:EB:E9:1B:99:FB:C6:34:1F:C4:F4:1B:66:AF"
+    ]
+  }
+}]
