@@ -329,3 +329,83 @@
 .reward-ad-icon    { font-size: 1.8rem; margin-bottom: .44rem; }
 .reward-ad-title   { font-family: 'Syne', sans-serif; font-size: .88rem; font-weight: 800; color: var(--text); margin-bottom: .22rem; }
 .reward-ad-sub     { font-size: .55rem; color: var(--muted); margin-bottom: .55rem; }
+
+/* ─────────────────────────────────────────
+   HEDİYE SİSTEMİ
+───────────────────────────────────────── */
+.gift-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .33rem; padding: .22rem .44rem; }
+.gift-card {
+  background: var(--card); border: 1.5px solid var(--border); border-radius: .66rem;
+  padding: .44rem .33rem; text-align: center; cursor: pointer; transition: all .2s; position: relative;
+}
+.gift-card:hover            { border-color: var(--p); transform: translateY(-2px); }
+.gift-card.rare             { border-color: rgba(78,205,196,.6); background: rgba(78,205,196,.05); }
+.gift-card.epic             { border-color: rgba(108,99,255,.7); background: rgba(108,99,255,.08); }
+.gift-card.legendary        { border-color: var(--gold); background: rgba(255,215,0,.08); animation: legendary-glow 2s ease infinite alternate; }
+.gift-icon  { font-size: 1.5rem; margin-bottom: .17rem; }
+.gift-name  { font-size: .36rem; font-weight: 800; color: var(--text); margin-bottom: .1rem; }
+.gift-price { font-size: .3rem; color: var(--acc3); font-weight: 800; }
+.gift-rarity{ font-size: .26rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .1rem; }
+.gift-card.rare .gift-rarity      { color: var(--acc3); }
+.gift-card.epic .gift-rarity      { color: var(--p2); }
+.gift-card.legendary .gift-rarity { color: var(--gold); }
+.popularity-badge {
+  display: inline-flex; align-items: center; gap: .17rem;
+  background: linear-gradient(135deg, rgba(255,179,71,.2), rgba(255,107,107,.1));
+  border: 1.5px solid var(--acc2); border-radius: 2rem;
+  padding: .1rem .44rem; font-size: .33rem; font-weight: 800; color: var(--acc2);
+}
+
+/* ─────────────────────────────────────────
+   GELİŞMİŞ PROFİL
+───────────────────────────────────────── */
+.bio-text {
+  font-size: .38rem; color: var(--muted); line-height: 1.6;
+  padding: .33rem .44rem; font-style: italic;
+}
+.bio-edit-input {
+  width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: .44rem;
+  color: var(--text); font-family: 'Nunito', sans-serif; font-size: .38rem;
+  padding: .33rem .44rem; resize: none; outline: none;
+  -webkit-user-select: text; user-select: text;
+}
+.profile-like-btn {
+  display: flex; align-items: center; gap: .22rem;
+  background: var(--card); border: 1.5px solid var(--border); border-radius: .55rem;
+  padding: .28rem .66rem; font-size: .38rem; font-weight: 800; cursor: pointer;
+  transition: all .2s; color: var(--text);
+}
+.profile-like-btn.liked { border-color: var(--acc); color: var(--acc); background: rgba(255,107,107,.1); }
+.profile-like-btn:hover { border-color: var(--p); transform: translateY(-1px); }
+.profile-actions-row    { display: flex; gap: .33rem; justify-content: center; margin-top: .33rem; flex-wrap: wrap; }
+
+/* ─────────────────────────────────────────
+   KELİME ANLAM SİSTEMİ
+───────────────────────────────────────── */
+.word-meaning-card {
+  background: var(--card); border: 1.5px solid var(--p);
+  border-radius: .66rem; padding: .55rem .66rem; margin: .33rem 0;
+}
+.meaning-word-display {
+  font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
+  color: var(--p2); text-align: center; margin-bottom: .22rem;
+}
+.meaning-textarea {
+  width: 100%; min-height: 3rem; background: var(--bg3);
+  border: 1.5px solid var(--border); border-radius: .44rem;
+  color: var(--text); font-size: .38rem; padding: .33rem .44rem;
+  resize: none; outline: none; -webkit-user-select: text; user-select: text;
+  transition: border-color .2s;
+}
+.meaning-textarea:focus { border-color: var(--p); }
+.char-counter      { font-size: .3rem; color: var(--dim); text-align: right; margin-top: .1rem; }
+.char-counter.ok   { color: var(--acc3); }
+.meaning-vote-row  { display: flex; gap: .33rem; margin-top: .33rem; }
+.vote-btn {
+  flex: 1; padding: .44rem; border-radius: .55rem; font-size: .38rem; font-weight: 800;
+  cursor: pointer; border: 1.5px solid var(--border); background: var(--card); color: var(--text);
+  transition: all .2s;
+}
+.vote-btn.correct { border-color: #4CAF50; color: #4CAF50; }
+.vote-btn.wrong   { border-color: var(--acc); color: var(--acc); }
+.vote-btn:hover   { transform: translateY(-1px); }
