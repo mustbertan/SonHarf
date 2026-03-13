@@ -1,20 +1,20 @@
 // ═══════════════════════════════════════════
-// gameEngine.js — Oyun Motoru
-// Oyun akışı, timer, sıra, puan, powerup
+// gameEngine.js — Oyun Motoru v2.0
+// Yeni: Ğ kuralı, dahili klavye, oyun içi bildirim
 // ═══════════════════════════════════════════
 'use strict';
 
-/* ─── Oyun Durumu (uyumluluk için global 'game' tutulur) ─── */
+/* ─── Oyun Durumu ─── */
 let game = null;
 
 /* ─── Zorluk Konfigürasyonu ─── */
 let selectedDifficulty = 'easy';
 
 const DIFFICULTY_CONFIG = {
-  easy:   { label:'😊 Kolay',  desc:'Bot rastgele kısa kelimeler seçer. Sıklıkla hata yapar.',       delay:[2500,4500], algorithm:'random_short' },
-  normal: { label:'🎯 Normal', desc:'Bot ortalama uzunlukta kelimeler seçer. Bazen takılır.',          delay:[1500,3000], algorithm:'random'       },
-  hard:   { label:'🔥 Zor',    desc:'Bot uzun ve zorlu kelimeler seçer. Hata yapmaz.',                delay:[800,1800],  algorithm:'longest_top5' },
-  insane: { label:'💀 Delice', desc:'Bot en uzun kelimeyi seçer. Neredeyse yenilmez.',                delay:[400,900],   algorithm:'longest'      },
+  easy:   { label:'😊 Kolay',  desc:'Bot rastgele kısa kelimeler seçer. Sıklıkla hata yapar.',    delay:[2500,4500], algorithm:'random_short'  },
+  normal: { label:'🎯 Normal', desc:'Bot ortalama uzunlukta kelimeler seçer. Bazen takılır.',       delay:[1500,3000], algorithm:'random'        },
+  hard:   { label:'🔥 Zor',    desc:'Bot uzun ve zorlu kelimeler seçer. Hata yapmaz.',              delay:[800,1800],  algorithm:'longest_top5'  },
+  insane: { label:'💀 Delice', desc:'Bot her zaman en uzun kelimeyi seçer. Neredeyse yenilmez.',   delay:[400,900],   algorithm:'longest'       },
 };
 
 function selectDifficulty(level) {
@@ -28,34 +28,100 @@ function selectDifficulty(level) {
   if (descEl)  descEl.textContent  = cfg.desc;
   haptic.light();
 }
+window.selectDifficulty = selectDifficulty;
 
 function startBotGameWithDifficulty() {
   haptic.success();
   startOfflineGame('bot');
 }
+window.startBotGameWithDifficulty = startBotGameWithDifficulty;
 
-/* ─── Oyun Başlatma ─── */
+/* ═══════════════════════════════════════════
+   DAHİLİ KLAVYE
+═══════════════════════════════════════════ */
+let gameKeyboardVisible = false;
+
+function toggleGameKeyboard() {
+  gameKeyboardVisible = !gameKeyboardVisible;
+  const kb  = document.getElementById('game-keyboard');
+  const btn = document.getElementById('kb-toggle-btn');
+  if (kb)  kb.style.display = gameKeyboardVisible ? '' : 'none';
+  if (btn) btn.classList.toggle('active', gameKeyboardVisible);
+  if (gameKeyboardVisible) {
+    // Telefon klavyesini kapat
+    const input = document.getElementById('word-input');
+    if (input) { input.readOnly = true; input.blur(); input.readOnly = false; }
+  }
+  haptic.light();
+}
+
+function kbPress(char) {
+  const input = document.getElementById('word-input');
+  if (!input || input.disabled) return;
+  input.value += char;
+  onWordInput();
+  haptic.light();
+}
+
+function kbBackspace() {
+  const input = document.getElementById('word-input');
+  if (!input || input.disabled) return;
+  input.value = input.value.slice(0, -1);
+  onWordInput();
+  haptic.light();
+}
+
+window.toggleGameKeyboard = toggleGameKeyboard;
+window.kbPress   = kbPress;
+window.kbBackspace = kbBackspace;
+
+/* ═══════════════════════════════════════════
+   OYUN İÇİ BİLDİRİM
+═══════════════════════════════════════════ */
+let _gameNotifTimer = null;
+
+function showGameNotification(msg, type = '', dur = 2000) {
+  const el = document.getElementById('game-notification');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'game-notification show' + (type ? ' ' + type : '');
+  clearTimeout(_gameNotifTimer);
+  _gameNotifTimer = setTimeout(() => el.classList.remove('show'), dur);
+}
+window.showGameNotification = showGameNotification;
+
+/* ═══════════════════════════════════════════
+   Ğ KURALI
+═══════════════════════════════════════════ */
+function isWordEndingInGH(word) {
+  return word && word.slice(-1).toLowerCase() === 'ğ';
+}
+window.isWordEndingInGH = isWordEndingInGH;
+
+/* ═══════════════════════════════════════════
+   OYUN BAŞLATMA
+═══════════════════════════════════════════ */
 function startOfflineGame(mode) {
   const user = UserState.get();
+  if (!user) return;
   let players = [];
 
   if (mode === 'bot') {
     players = [
-      { id: user.id, name: user.username, avatar: user.avatar, isMe: true, isBot: false, score: 0, lives: 3, eliminated: false, comboStreak: 0 },
-      { id: 'bot_1', name: 'Bot', avatar: '🤖', isMe: false, isBot: true, botDifficulty: selectedDifficulty, score: 0, lives: 3, eliminated: false, comboStreak: 0 },
+      { id: user.id, name: user.username, avatar: user.avatar, isMe: true,  isBot: false, botDifficulty: null,               score:0, lives:3, eliminated:false, comboStreak:0 },
+      { id: 'bot_1', name: 'Bot',         avatar: '🤖',        isMe: false, isBot: true,  botDifficulty: selectedDifficulty, score:0, lives:3, eliminated:false, comboStreak:0 },
     ];
   } else if (mode === 'pass') {
     const p2name = prompt('2. oyuncunun adı:') || 'Oyuncu 2';
     players = [
-      { id: user.id, name: user.username, avatar: user.avatar, isMe: true, isBot: false, score: 0, lives: 3, eliminated: false, comboStreak: 0 },
-      { id: 'p2',   name: p2name,          avatar: '🎮',        isMe: false, isBot: false, score: 0, lives: 3, eliminated: false, comboStreak: 0 },
+      { id: user.id, name: user.username, avatar: user.avatar, isMe: true,  isBot: false, score:0, lives:3, eliminated:false, comboStreak:0 },
+      { id: 'p2',    name: p2name,        avatar: '🎮',        isMe: false, isBot: false, score:0, lives:3, eliminated:false, comboStreak:0 },
     ];
   } else if (mode === 'practice') {
     players = [
-      { id: user.id, name: user.username, avatar: user.avatar, isMe: true, isBot: false, score: 0, lives: 99, eliminated: false, comboStreak: 0 },
+      { id: user.id, name: user.username, avatar: user.avatar, isMe: true, isBot: false, score:0, lives:99, eliminated:false, comboStreak:0 },
     ];
   }
-
   startGameWithPlayers(players, mode);
 }
 
@@ -80,20 +146,22 @@ function startGameWithPlayers(players, mode = 'bot') {
     botTimer:         null,
     roomId:           null,
     startedAt:        Date.now(),
+    activeDouble:     false,
   };
+  // Global referans
+  window.game = game;
 
   game.currentWord = pickStartWord();
   Router.navigate('screen-game', { fast: true });
 
-  const modeLabels = { bot:'Bot ile Oyna', pass:'Sıra Sende', practice:'Pratik Modu', online:'Online' };
-  const modeEl = document.getElementById('game-mode-label');
-  if (modeEl) modeEl.textContent = modeLabels[mode] || mode;
-
+  const modeLabels = { bot:'Bot ile Oyna', pass:'Sıra Sende', practice:'Pratik Modu', online:'🌐 Online' };
   setTimeout(() => {
+    const modeEl = document.getElementById('game-mode-label');
+    if (modeEl) modeEl.textContent = modeLabels[mode] || mode;
     renderGamePlayers();
     updateWordDisplay();
     renderPowerups();
-    clearChat();
+    clearGameChat();
     startTurn();
     Analytics.track('game_start', { mode });
   }, 300);
@@ -101,19 +169,20 @@ function startGameWithPlayers(players, mode = 'bot') {
 
 function pickStartWord() {
   const WORD_LIST = window.WORD_LIST || [];
-  const starters  = WORD_LIST.filter(w => w.length >= 4);
-  const word      = starters[Math.floor(Math.random() * starters.length)] || 'araba';
-  return word;
+  const starters  = WORD_LIST.filter(w => w.length >= 4 && !isWordEndingInGH(w));
+  return starters.length
+    ? starters[Math.floor(Math.random() * starters.length)]
+    : 'araba';
 }
 
-/* ─── Oyuncu Listesi Render ─── */
+/* ─── Oyuncu Kartları Render ─── */
 function renderGamePlayers() {
   const container = document.getElementById('game-players-list');
   if (!container || !game) return;
 
   container.innerHTML = game.players.map((p, i) => {
     const isActive = i === game.currentPlayerIdx && !p.eliminated;
-    const lives    = '❤️'.repeat(Math.min(p.lives, 3)) || '💀';
+    const lives    = '❤️'.repeat(Math.max(0, Math.min(p.lives, 3))) || '💀';
     return `<div class="game-player-chip ${isActive ? 'active' : ''} ${p.eliminated ? 'eliminated' : ''} ${p.isMe ? 'me' : ''}">
       ${isActive ? '<div class="gpc-active-dot"></div>' : ''}
       <div class="gpc-avatar">${p.avatar}</div>
@@ -124,7 +193,7 @@ function renderGamePlayers() {
   }).join('');
 }
 
-/* ─── Sıra Yönetimi ─── */
+/* ─── Sıra Başlatma ─── */
 function startTurn() {
   if (!game || game.gameOver) return;
   clearInterval(game.timerInterval);
@@ -133,59 +202,51 @@ function startTurn() {
   const player = game.players[game.currentPlayerIdx];
   if (!player || player.eliminated) { nextTurn(); return; }
 
-  const isMe    = game.isPractice ? true : player.isMe;
-  const input   = document.getElementById('word-input');
+  const isMe      = game.isPractice ? true : player.isMe;
+  const input     = document.getElementById('word-input');
   const submitBtn = document.getElementById('submit-btn');
+  const statusEl  = document.getElementById('word-status-text');
 
-  if (input)     { input.disabled = !isMe; if (isMe) { input.value = ''; input.focus(); } }
+  if (input)     { input.disabled = !isMe; if (isMe) { input.value = ''; if (!gameKeyboardVisible) input.focus(); } }
   if (submitBtn) submitBtn.disabled = !isMe;
-
-  const statusEl = document.getElementById('word-status-text');
-  if (statusEl) {
-    if (isMe) statusEl.textContent = `${player.name}, sıra sende!`;
-    else      statusEl.innerHTML   = `<span class="bot-thinking"><span></span><span></span><span></span></span> ${escapeHtml(player.name)} düşünüyor...`;
+  if (statusEl)  {
+    statusEl.textContent = isMe
+      ? `⌨️ ${escapeHtml(player.name)}, kelimeni yaz!`
+      : `⏳ ${escapeHtml(player.name)} düşünüyor...`;
   }
 
   updateWordDisplay();
 
-  // Timer başlat
+  // Timer
   let timeLeft = game.timer;
   updateTimerRing(timeLeft, game.timer);
-
   const roundEl = document.getElementById('game-round');
   if (roundEl) roundEl.textContent = game.round;
 
   game.timerInterval = setInterval(() => {
     timeLeft--;
     updateTimerRing(timeLeft, game.timer);
-    const timerEl = document.getElementById('timer-text');
-    if (timerEl) timerEl.textContent = timeLeft;
-
     const ring = document.getElementById('timer-ring');
     if (ring) {
-      if (timeLeft <= 5)      ring.classList.add('danger');
-      else if (timeLeft <= 8) ring.classList.add('warn');
-      else                    ring.classList.remove('danger','warn');
+      ring.classList.toggle('danger', timeLeft <= 5);
+      ring.classList.toggle('warn',   timeLeft > 5 && timeLeft <= 8);
     }
-
     if (timeLeft <= 0) {
       clearInterval(game.timerInterval);
       onTimeout(player);
     }
   }, 1000);
 
-  // Bot hamlesi
-  if (!isMe && player.isBot) {
-    botPlay(player);
-  }
+  if (!isMe && player.isBot) botPlay(player);
 }
 
 function updateTimerRing(current, total) {
-  const ring = document.getElementById('timer-ring');
-  if (!ring) return;
-  const circumference = 175.9;
-  ring.style.strokeDashoffset = circumference - (current / total) * circumference;
+  const ring    = document.getElementById('timer-ring');
   const timerEl = document.getElementById('timer-text');
+  if (ring) {
+    const circumference = 175.9;
+    ring.style.strokeDashoffset = circumference - (current / total) * circumference;
+  }
   if (timerEl) timerEl.textContent = current;
 }
 
@@ -194,7 +255,7 @@ function onTimeout(player) {
   clearInterval(game?.timerInterval);
   if (!game || game.gameOver) return;
   haptic.error();
-  showToast(`⏰ ${escapeHtml(player.name)} süreyi dolurdu!`);
+  showGameNotification(`⏰ ${escapeHtml(player.name)} süreyi doldurdu!`, 'warn');
   penalizePlayer(player);
 }
 
@@ -208,24 +269,28 @@ function botPlay(player) {
 
   clearTimeout(game.botTimer);
   game.botTimer = setTimeout(() => {
-    if (!game || game.currentPlayerIdx !== game.players.indexOf(player)) return;
+    if (!game || game.players[game.currentPlayerIdx] !== player) return;
 
     const WORD_LIST = window.WORD_LIST || [];
-    let candidates = WORD_LIST.filter(w => w[0] === lastChar && !game.usedWords.has(w));
+    // Ğ ile bitecek kelimeler de yasak (bota da uygula)
+    let candidates = WORD_LIST.filter(w => w[0] === lastChar && !game.usedWords.has(w) && !isWordEndingInGH(w));
 
-    // Algoritma
     let word = null;
-    if (cfg.algorithm === 'random_short') {
-      candidates = candidates.filter(w => w.length <= 5);
-      word = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : null;
-    } else if (cfg.algorithm === 'random') {
-      word = candidates.length ? candidates[Math.floor(Math.random() * Math.min(candidates.length, 15))] : null;
-    } else if (cfg.algorithm === 'longest_top5') {
-      candidates.sort((a, b) => b.length - a.length);
-      word = candidates.length ? candidates[Math.floor(Math.random() * Math.min(candidates.length, 5))] : null;
-    } else if (cfg.algorithm === 'longest') {
-      candidates.sort((a, b) => b.length - a.length);
-      word = candidates[0] || null;
+    switch (cfg.algorithm) {
+      case 'random_short':
+        candidates = candidates.filter(w => w.length <= 5);
+        word = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : null;
+        break;
+      case 'random':
+        word = candidates.length ? candidates[Math.floor(Math.random() * Math.min(candidates.length, 15))] : null;
+        break;
+      case 'longest_top5':
+        candidates.sort((a, b) => b.length - a.length);
+        word = candidates.length ? candidates[Math.floor(Math.random() * Math.min(candidates.length, 5))] : null;
+        break;
+      case 'longest':
+        word = candidates.sort((a, b) => b.length - a.length)[0] || null;
+        break;
     }
 
     if (!word) { onTimeout(player); return; }
@@ -238,6 +303,7 @@ function onWordInput() {
   const input = document.getElementById('word-input');
   if (input) input.value = input.value.toLowerCase();
 }
+
 function onWordKeyDown(e) {
   if (e.key === 'Enter') { e.preventDefault(); submitWord(); }
 }
@@ -251,8 +317,18 @@ async function submitWord() {
   const player = game.players[game.currentPlayerIdx];
   if (!player || player.eliminated || (!game.isPractice && !player.isMe)) return;
 
-  if (input) { input.disabled = true; }
+  if (input)     input.disabled = true;
   document.getElementById('submit-btn')?.setAttribute('disabled', true);
+
+  // Ğ kuralı — can kaybı YOK
+  if (isWordEndingInGH(word)) {
+    if (input) { input.disabled = false; input.value = ''; }
+    document.getElementById('submit-btn')?.removeAttribute('disabled');
+    showGameNotification('⚠️ "Ğ" ile biten kelimeler yasaktır!\nYeni bir kelime yaz.', 'warn', 3000);
+    haptic.error();
+    startTurn();
+    return;
+  }
 
   const result = await WordValidator.validate(word);
   processWord(word, player, result.valid, result.source);
@@ -263,26 +339,25 @@ function processWord(word, player, isKnownValid, validSource) {
   if (!game || game.gameOver) return;
   clearInterval(game.timerInterval);
 
-  const input        = document.getElementById('word-input');
-  const statusEl     = document.getElementById('word-status-text');
-  const lastChar     = game.currentWord.slice(-1).toLowerCase();
+  const input     = document.getElementById('word-input');
+  const statusEl  = document.getElementById('word-status-text');
+  const lastChar  = game.currentWord.slice(-1).toLowerCase();
 
   // Zincir kontrolü
   if (word[0] !== lastChar) {
     if (input) { input.disabled = false; input.value = ''; }
     document.getElementById('submit-btn')?.removeAttribute('disabled');
-    showToast(`❌ "${word[0].toUpperCase()}" ile başlamalı!`);
+    showGameNotification(`❌ "${lastChar.toUpperCase()}" ile başlamalı!`, 'error');
     haptic.error();
-    if (statusEl) statusEl.textContent = `"${lastChar.toUpperCase()}" ile başlamalı!`;
     if (!player.isBot) startTurn();
     return;
   }
 
-  // Tekrar kullanım kontrolü
+  // Tekrar kontrolü
   if (game.usedWords.has(word)) {
     if (input) { input.disabled = false; input.value = ''; }
     document.getElementById('submit-btn')?.removeAttribute('disabled');
-    showToast('❌ Bu kelime zaten kullanıldı!');
+    showGameNotification('❌ Bu kelime zaten kullanıldı!', 'error');
     haptic.error();
     if (!player.isBot) startTurn();
     return;
@@ -292,25 +367,24 @@ function processWord(word, player, isKnownValid, validSource) {
   if (!isKnownValid && validSource !== 'bot_ai') {
     if (input) { input.disabled = false; input.value = ''; }
     document.getElementById('submit-btn')?.removeAttribute('disabled');
-    showToast('❌ Geçersiz kelime!');
+    showGameNotification('❌ Geçersiz kelime!', 'error');
     haptic.error();
     penalizePlayer(player);
     return;
   }
 
   // ─── Geçerli Kelime ─── //
-  const timeRemaining = parseInt(document.getElementById('timer-text')?.textContent || '0') || 0;
-  const timeBonus     = Math.floor(timeRemaining / 2);
-  const comboMult     = 1 + (player.comboStreak || 0) * 0.1;
-
-  // Çift puan powerup
-  const hasDouble = (game.activeDouble && player.isMe);
-  const pts       = Math.floor((word.length * 10 + timeBonus) * comboMult * (hasDouble ? 2 : 1));
+  const timeEl   = document.getElementById('timer-text');
+  const timeLeft = parseInt(timeEl?.textContent || '0') || 0;
+  const comboMult= 1 + (player.comboStreak || 0) * 0.1;
+  const hasDouble= game.activeDouble && (player.isMe || game.isPractice);
+  const pts      = Math.floor((word.length * 10 + Math.floor(timeLeft / 2)) * comboMult * (hasDouble ? 2 : 1));
   game.activeDouble = false;
 
-  player.score     += pts;
-  player.comboStreak = (player.comboStreak || 0) + 1;
-  if (player.isMe) {
+  player.score      = (player.score || 0) + pts;
+  player.comboStreak= (player.comboStreak || 0) + 1;
+
+  if (player.isMe || game.isPractice) {
     game.myScore = (game.myScore || 0) + pts;
     const user = UserState.get();
     if (user) {
@@ -322,44 +396,66 @@ function processWord(word, player, isKnownValid, validSource) {
   }
 
   game.usedWords.add(word);
-  game.wordHistory.push({ word, playerId: player.id, isMe: player.isMe, score: pts });
+  game.wordHistory.push({ word, playerId: player.id, isMe: player.isMe || game.isPractice, score: pts });
   game.currentWord = word;
   game.totalWords++;
+  window.game = game;
 
   // Koleksiyon
-  WordCollectionSystem.add(word);
+  if (window.WordCollectionSystem) WordCollectionSystem.add(word);
+  // Offline dict
+  if (window.addToOfflineDict) addToOfflineDict(word);
 
-  // Skor göster
+  // Skor güncelle
   const scoreEl = document.getElementById('game-score-display');
-  if (scoreEl && player.isMe) scoreEl.textContent = `⭐ ${game.myScore}`;
+  if (scoreEl && (player.isMe || game.isPractice)) scoreEl.textContent = `⭐ ${game.myScore}`;
 
   haptic.success();
   if (input) input.value = '';
+
+  // Bildirim
+  if (player.comboStreak >= 3) showGameNotification(`🔥 ${player.comboStreak}x KOMBO! +${pts}`, 'success', 1500);
+
   renderCombo(player.comboStreak);
   updateWordDisplay();
   updateWordHistory();
   renderGamePlayers();
-  addGameChat(`${player.avatar} ${escapeHtml(player.name)}: ${word} (+${pts})`);
+  addGameChatMsg(`${player.avatar} ${escapeHtml(player.name)}: ${word} (+${pts})`);
 
-  // Animasyon sonrası sıra geç
+  // Multiplayer broadcast
+  if (game.roomId && window._broadcastWordPlayed) {
+    _broadcastWordPlayed(word, pts);
+  }
+
   setTimeout(() => nextTurn(), 600);
 }
 
 /* ─── Ceza ─── */
 function penalizePlayer(player) {
   if (!player || !game) return;
+
+  // Kalkan powerup var mı?
+  if (player.shield) {
+    player.shield = false;
+    showGameNotification('🛡️ Kalkan koruma sağladı!', 'success');
+    player.comboStreak = 0;
+    renderGamePlayers();
+    setTimeout(() => nextTurn(), 800);
+    return;
+  }
+
   player.comboStreak = 0;
   player.lives = (player.lives || 3) - 1;
 
   if (player.lives <= 0) {
     player.eliminated = true;
-    showToast(`💀 ${escapeHtml(player.name)} elendi!`);
+    showGameNotification(`💀 ${escapeHtml(player.name)} elendi!`, 'error', 2000);
     haptic.heavy();
   }
 
   renderGamePlayers();
   const active = game.players.filter(p => !p.eliminated);
-  if (active.length <= 1) {
+  if (active.length <= 1 && !game.isPractice) {
     setTimeout(() => endGame(), 800);
   } else {
     setTimeout(() => nextTurn(), 800);
@@ -372,13 +468,14 @@ function nextTurn() {
   const active = game.players.filter(p => !p.eliminated);
   if (active.length <= 1 && !game.isPractice) { endGame(); return; }
 
-  let next = (game.currentPlayerIdx + 1) % game.players.length;
+  let next  = (game.currentPlayerIdx + 1) % game.players.length;
   let guard = 0;
   while (game.players[next]?.eliminated && guard++ < game.players.length) {
     next = (next + 1) % game.players.length;
   }
+  if (next === 0 && game.currentPlayerIdx !== 0) game.round++;
   game.currentPlayerIdx = next;
-  if (next === 0 || next < game.currentPlayerIdx) game.round++;
+  window.game = game;
   startTurn();
 }
 
@@ -388,12 +485,10 @@ function updateWordDisplay() {
   const w      = game.currentWord || '';
   const before = w.slice(0, -1);
   const last   = w.slice(-1);
-  const bEl    = document.getElementById('word-before-last');
-  const lEl    = document.getElementById('word-last-char');
-  const hintEl = document.getElementById('next-start-hint');
-  if (bEl)    bEl.textContent  = before;
-  if (lEl)    lEl.textContent  = last   || '?';
-  if (hintEl) hintEl.textContent = last.toUpperCase() || '?';
+  const el     = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  el('word-before-last', before);
+  el('word-last-char',   last || '?');
+  el('next-start-hint',  last.toUpperCase() || '?');
 }
 
 function updateWordHistory() {
@@ -409,19 +504,18 @@ function updateWordHistory() {
 function renderCombo(streak) {
   const area = document.getElementById('combo-area');
   if (!area) return;
-  if (streak >= 3) {
-    area.innerHTML = `<div class="combo-display"><div class="combo-text">🔥 ${streak}x KOMBO!</div></div>`;
-  } else {
-    area.innerHTML = '';
-  }
+  area.innerHTML = streak >= 3
+    ? `<div class="combo-display"><div class="combo-text">🔥 ${streak}x KOMBO!</div></div>`
+    : '';
 }
 
 /* ─── Powerups ─── */
 function renderPowerups() {
-  const bar = document.getElementById('powerups-bar');
+  const bar  = document.getElementById('powerups-bar');
   if (!bar || !game) return;
   const user = UserState.get();
   const pu   = user?.powerups || {};
+  const POWERUP_DEFS = window.POWERUP_DEFS || [];
   bar.innerHTML = POWERUP_DEFS.map(p => {
     const count = pu[p.id] || 0;
     return `<button class="powerup-btn" onclick="usePowerup('${p.id}')" ${count === 0 ? 'disabled' : ''}>
@@ -433,10 +527,9 @@ function renderPowerups() {
 }
 
 function usePowerup(id) {
-  const user   = UserState.get();
-  const count  = user?.powerups?.[id] || 0;
-  if (count === 0) { showToast('⚠️ Bu güç yok!'); return; }
-  if (!game || game.gameOver) return;
+  const user  = UserState.get();
+  const count = user?.powerups?.[id] || 0;
+  if (!count || !game || game.gameOver) { showToast('⚠️ Bu güç kullanılamaz!'); return; }
 
   const player = game.players[game.currentPlayerIdx];
   if (!game.isPractice && !player?.isMe) { showToast('⚠️ Sıran değil!'); return; }
@@ -445,29 +538,38 @@ function usePowerup(id) {
   user.powerupsUsed = (user.powerupsUsed || 0) + 1;
   UserState.save();
 
-  if (id === 'extra_time') {
-    const timerEl = document.getElementById('timer-text');
-    let tl = parseInt(timerEl?.textContent || '0') + 15;
-    tl = Math.min(tl, 30);
-    if (timerEl) timerEl.textContent = tl;
-    showToast('⏰ +15 saniye!');
-  } else if (id === 'hint') {
-    const lastChar  = game.currentWord.slice(-1).toLowerCase();
-    const WORD_LIST = window.WORD_LIST || [];
-    const hints     = WORD_LIST.filter(w => w[0] === lastChar && !game.usedWords.has(w));
-    if (hints.length) {
-      const h = hints[Math.floor(Math.random() * hints.length)];
-      showToast(`💡 İpucu: "${h[0].toUpperCase()}${h[1]}"...`);
+  const timerEl = document.getElementById('timer-text');
+  switch (id) {
+    case 'extra_time': {
+      let tl = parseInt(timerEl?.textContent || '0') + 15;
+      tl = Math.min(tl, 60);
+      if (timerEl) timerEl.textContent = tl;
+      showGameNotification('⏰ +15 saniye!', 'success');
+      break;
     }
-  } else if (id === 'shield') {
-    player.shield = true;
-    showToast('🛡️ Kalkan aktif! Bir hata korunacak.');
-  } else if (id === 'pass') {
-    showToast('⏭️ Sıra geçildi!');
-    nextTurn(); return;
-  } else if (id === 'double') {
-    game.activeDouble = true;
-    showToast('2️⃣ Çift puan aktif!');
+    case 'hint': {
+      const lastChar  = game.currentWord.slice(-1).toLowerCase();
+      const WORD_LIST = window.WORD_LIST || [];
+      const hints     = WORD_LIST.filter(w => w[0] === lastChar && !game.usedWords.has(w) && !isWordEndingInGH(w));
+      if (hints.length) {
+        const h = hints[Math.floor(Math.random() * hints.length)];
+        showGameNotification(`💡 İpucu: "${h[0].toUpperCase()}${h[1]}"...`, 'success');
+      }
+      break;
+    }
+    case 'shield':
+      player.shield = true;
+      showGameNotification('🛡️ Kalkan aktif! Bir hata korunacak.', 'success');
+      break;
+    case 'pass':
+      showGameNotification('⏭️ Sıra geçildi!', '');
+      renderPowerups();
+      nextTurn();
+      return;
+    case 'double':
+      game.activeDouble = true;
+      showGameNotification('2️⃣ Çift puan aktif!', 'success');
+      break;
   }
 
   renderPowerups();
@@ -477,7 +579,7 @@ function usePowerup(id) {
 
 /* ─── Game Chat ─── */
 let gameChatOpen = false;
-const gameChatMsgs = [];
+const _gameChatMsgs = [];
 
 function toggleGameChat() {
   gameChatOpen = !gameChatOpen;
@@ -485,11 +587,11 @@ function toggleGameChat() {
   if (panel) panel.style.display = gameChatOpen ? 'flex' : 'none';
 }
 
-function addGameChat(text) {
+function addGameChatMsg(text) {
   const now  = new Date();
   const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-  gameChatMsgs.push({ text, time });
-  if (gameChatMsgs.length > 50) gameChatMsgs.shift();
+  _gameChatMsgs.push({ text, time });
+  if (_gameChatMsgs.length > 50) _gameChatMsgs.shift();
   renderGameChatMsgs();
 }
 
@@ -498,24 +600,23 @@ function sendGameChat() {
   const text  = input?.value.trim();
   const user  = UserState.get();
   if (!text || !user) return;
-  const now  = new Date();
-  const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-  gameChatMsgs.push({ text: `${user.avatar} ${escapeHtml(user.username)}: ${escapeHtml(filterProfanity(text))}`, time });
+  addGameChatMsg(`${user.avatar} ${escapeHtml(user.username)}: ${escapeHtml(filterProfanity(text))}`);
   if (input) input.value = '';
-  renderGameChatMsgs();
 }
 
 function renderGameChatMsgs() {
   const cont = document.getElementById('game-chat-messages');
   if (!cont) return;
-  cont.innerHTML = gameChatMsgs.map(m =>
-    `<div style="font-size:.33rem;color:var(--muted);margin-bottom:.1rem;"><span style="color:var(--dim);">${m.time}</span> ${m.text}</div>`
+  cont.innerHTML = _gameChatMsgs.map(m =>
+    `<div style="font-size:.33rem;color:var(--muted);margin-bottom:.1rem;">
+      <span style="color:var(--dim);">${m.time}</span> ${m.text}
+    </div>`
   ).join('');
   cont.scrollTop = cont.scrollHeight;
 }
 
-function clearChat() {
-  gameChatMsgs.length = 0;
+function clearGameChat() {
+  _gameChatMsgs.length = 0;
   gameChatOpen = false;
   const panel = document.getElementById('game-chat-panel');
   if (panel) panel.style.display = 'none';
@@ -544,8 +645,8 @@ function endGame(forfeited = false) {
   const sorted = [...(game.players || [])].sort((a, b) => b.score - a.score);
   const winner = sorted[0];
   const iWon   = winner?.isMe || game.isPractice;
+  const user   = UserState.get();
 
-  const user = UserState.get();
   if (user && game) {
     user.totalMatches = (user.totalMatches || 0) + 1;
     user.todayMatches = (user.todayMatches || 0) + 1;
@@ -560,12 +661,12 @@ function endGame(forfeited = false) {
     const earnedXP    = Math.floor((game.myScore || 0) * 0.5) + (iWon ? 50 : 10);
     const earnedCoins = Math.floor((game.myScore || 0) * 0.1) + (iWon ? 100 : 20);
 
-    user.xp        = (user.xp    || 0) + earnedXP;
-    user.coins     = (user.coins || 0) + earnedCoins;
-    user.totalScore= (user.totalScore || 0) + (game.myScore || 0);
-    user.gems      = (user.gems  || 0) + (iWon ? 1 : 0);
+    user.xp         = (user.xp        || 0) + earnedXP;
+    user.coins      = (user.coins     || 0) + earnedCoins;
+    user.totalScore = (user.totalScore|| 0) + (game.myScore || 0);
+    user.gems       = (user.gems      || 0) + (iWon ? 1 : 0);
 
-    while (user.xp >= user.xpNeeded) {
+    while (user.xp >= (user.xpNeeded || 100)) {
       user.xp      -= user.xpNeeded;
       user.level    = (user.level || 1) + 1;
       user.xpNeeded = Math.floor((user.xpNeeded || 100) * 1.4);
@@ -573,10 +674,10 @@ function endGame(forfeited = false) {
     }
 
     // Sezon XP
-    BattlePassSystem.addXP(earnedXP);
+    if (window.BattlePassSystem) BattlePassSystem.addXP(earnedXP);
 
     // Kelime koleksiyonu
-    if (game.wordHistory) {
+    if (game.wordHistory && window.WordCollectionSystem) {
       game.wordHistory.forEach(h => { if (h.word) WordCollectionSystem.add(h.word); });
     }
 
@@ -592,10 +693,10 @@ function endGame(forfeited = false) {
     checkAchievements();
     refreshCurrencyDisplays();
 
-    // Sonuç ekranını doldur
+    // Sonuç ekranı
     Router.navigate('screen-result', { fast: true });
 
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
     set('result-crown',  iWon ? '🏆' : '😢');
     set('result-winner', iWon ? (game.isPractice ? 'Pratik Bitti!' : 'Kazandın!') : `${winner?.name || 'Bot'} Kazandı!`);
     set('result-sub',    `${game.totalWords} kelime söylendi`);
@@ -603,8 +704,8 @@ function endGame(forfeited = false) {
     const scoresEl = document.getElementById('result-scores');
     if (scoresEl) {
       scoresEl.innerHTML = sorted.map((p, i) =>
-        `<div class="lb-row ${['top1','top2','top3'][i] || ''}" style="margin-bottom:.17rem;">
-          <div class="lb-rank">${['🥇','🥈','🥉'][i] || i + 1}</div>
+        `<div class="lb-row ${['top1','top2','top3'][i]||''}" style="margin-bottom:.17rem;">
+          <div class="lb-rank">${['🥇','🥈','🥉'][i]||i+1}</div>
           <div class="lb-avatar">${p.avatar}</div>
           <div class="lb-info"><div class="lb-name">${escapeHtml(p.name)}</div></div>
           <div class="lb-score">${p.score} pts</div>
@@ -633,7 +734,7 @@ function endGame(forfeited = false) {
     }
 
     pushAd('result-banner');
-    Analytics.track('game_end', { mode: game.mode, won: iWon, score: game.myScore, words: game.totalWords });
+    Analytics.track('game_end', { mode: game.mode, won: iWon, score: game.myScore });
   }
 }
 
@@ -643,7 +744,7 @@ function playAgain() {
   const prevPlayers = game.players;
   Router.navigate('screen-home');
   setTimeout(() => startGameWithPlayers(
-    prevPlayers.map(p => ({ ...p, score:0, lives:3, eliminated:false, comboStreak:0 })),
+    prevPlayers.map(p => ({ ...p, score:0, lives:3, eliminated:false, comboStreak:0, shield:false })),
     mode
   ), 500);
 }
@@ -658,20 +759,16 @@ function toggleVoice() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { showToast('⚠️ Ses tanıma bu tarayıcıda desteklenmiyor'); return; }
     if (!speechRecognition) {
-      speechRecognition      = new SR();
-      speechRecognition.lang = 'tr-TR';
-      speechRecognition.continuous     = false;
+      speechRecognition            = new SR();
+      speechRecognition.lang       = 'tr-TR';
+      speechRecognition.continuous = false;
       speechRecognition.interimResults = true;
-
-      speechRecognition.onresult = (e) => {
+      speechRecognition.onresult   = (e) => {
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const t = e.results[i][0].transcript.trim().toLowerCase();
-          const input = document.getElementById('word-input');
-          if (input) { input.value = t; onWordInput(); }
-          if (e.results[i].isFinal) {
-            showToast(`🎤 Duyuldu: "${t}"`);
-            setTimeout(() => submitWord(), 500);
-          }
+          const inp = document.getElementById('word-input');
+          if (inp) { inp.value = t; onWordInput(); }
+          if (e.results[i].isFinal) { showToast(`🎤 "${t}"`); setTimeout(() => submitWord(), 500); }
         }
       };
       speechRecognition.onerror = () => stopVoice();
@@ -693,39 +790,37 @@ function stopVoice() {
   try { speechRecognition?.stop(); } catch {}
 }
 
-// Global export
-window.game                    = null;
-window.selectedDifficulty      = selectedDifficulty;
-window.DIFFICULTY_CONFIG       = DIFFICULTY_CONFIG;
-window.selectDifficulty        = selectDifficulty;
-window.startBotGameWithDifficulty = startBotGameWithDifficulty;
-window.startOfflineGame        = startOfflineGame;
-window.startGameWithPlayers    = startGameWithPlayers;
-window.pickStartWord           = pickStartWord;
-window.renderGamePlayers       = renderGamePlayers;
-window.startTurn               = startTurn;
-window.updateTimerRing         = updateTimerRing;
-window.onTimeout               = onTimeout;
-window.botPlay                 = botPlay;
-window.onWordInput             = onWordInput;
-window.onWordKeyDown           = onWordKeyDown;
-window.submitWord              = submitWord;
-window.processWord             = processWord;
-window.penalizePlayer          = penalizePlayer;
-window.nextTurn                = nextTurn;
-window.updateWordDisplay       = updateWordDisplay;
-window.updateWordHistory       = updateWordHistory;
-window.renderCombo             = renderCombo;
-window.renderPowerups          = renderPowerups;
-window.usePowerup              = usePowerup;
-window.toggleGameChat          = toggleGameChat;
-window.addGameChat             = addGameChat;
-window.sendGameChat            = sendGameChat;
-window.renderGameChatMsgs      = renderGameChatMsgs;
-window.clearChat               = clearChat;
-window.showGameMenu            = showGameMenu;
-window.forfeitGame             = forfeitGame;
-window.endGame                 = endGame;
-window.playAgain               = playAgain;
-window.toggleVoice             = toggleVoice;
-window.stopVoice               = stopVoice;
+/* ─── Global exports ─── */
+window.game                   = game;
+window.selectedDifficulty     = selectedDifficulty;
+window.DIFFICULTY_CONFIG      = DIFFICULTY_CONFIG;
+window.startOfflineGame       = startOfflineGame;
+window.startGameWithPlayers   = startGameWithPlayers;
+window.pickStartWord          = pickStartWord;
+window.renderGamePlayers      = renderGamePlayers;
+window.startTurn              = startTurn;
+window.updateTimerRing        = updateTimerRing;
+window.onTimeout              = onTimeout;
+window.botPlay                = botPlay;
+window.onWordInput            = onWordInput;
+window.onWordKeyDown          = onWordKeyDown;
+window.submitWord             = submitWord;
+window.processWord            = processWord;
+window.penalizePlayer         = penalizePlayer;
+window.nextTurn               = nextTurn;
+window.updateWordDisplay      = updateWordDisplay;
+window.updateWordHistory      = updateWordHistory;
+window.renderCombo            = renderCombo;
+window.renderPowerups         = renderPowerups;
+window.usePowerup             = usePowerup;
+window.toggleGameChat         = toggleGameChat;
+window.addGameChatMsg         = addGameChatMsg;
+window.sendGameChat           = sendGameChat;
+window.renderGameChatMsgs     = renderGameChatMsgs;
+window.clearGameChat          = clearGameChat;
+window.showGameMenu           = showGameMenu;
+window.forfeitGame            = forfeitGame;
+window.endGame                = endGame;
+window.playAgain              = playAgain;
+window.toggleVoice            = toggleVoice;
+window.stopVoice              = stopVoice;
