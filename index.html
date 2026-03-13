@@ -258,6 +258,16 @@
         <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Turnuva</div>
         <div style="font-size:.28rem;color:var(--muted);">Kayıt açık!</div>
       </div>
+      <div style="background:linear-gradient(135deg,rgba(255,179,71,.15),rgba(255,107,107,.05));border:1.5px solid var(--acc2);border-radius:.55rem;padding:.33rem .44rem;cursor:pointer;" onclick="goScreen('screen-gifts')">
+        <div style="font-size:.8rem;">🎁</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Hediyeler</div>
+        <div style="font-size:.28rem;color:var(--muted);" id="home-gifts-label">Arkadaşa gönder</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(139,131,255,.15),rgba(108,99,255,.05));border:1.5px solid var(--p2);border-radius:.55rem;padding:.33rem .44rem;cursor:pointer;" onclick="goScreen('screen-word-meaning')">
+        <div style="font-size:.8rem;">📚</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.38rem;font-weight:800;color:var(--text);">Kelime Anlamı</div>
+        <div style="font-size:.28rem;color:var(--muted);">Coin kazan</div>
+      </div>
     </div>
 
     <div style="height:.44rem;"></div>
@@ -454,7 +464,36 @@
         onkeydown="onWordKeyDown(event)">
       <button class="submit-btn" id="submit-btn" onclick="submitWord()">→</button>
     </div>
-    <div style="font-size:.3rem;color:var(--dim);font-weight:700;margin-top:.14rem;text-align:center;" id="word-status-text">Kelimeni yaz ve gönder</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.14rem;">
+      <div style="font-size:.3rem;color:var(--dim);font-weight:700;" id="word-status-text">Kelimeni yaz ve gönder</div>
+      <div class="kb-toggle-btn" id="kb-toggle-btn" onclick="toggleGameKeyboard()">⌨️ Klavye</div>
+    </div>
+  </div>
+  <!-- Dahili Türkçe Klavye -->
+  <div class="game-keyboard" id="game-keyboard" style="display:none;">
+    <div class="kb-row">
+      <div class="kb-key" onclick="kbPress('e')">E</div><div class="kb-key" onclick="kbPress('r')">R</div>
+      <div class="kb-key" onclick="kbPress('t')">T</div><div class="kb-key" onclick="kbPress('y')">Y</div>
+      <div class="kb-key" onclick="kbPress('u')">U</div><div class="kb-key" onclick="kbPress('ı')">I</div>
+      <div class="kb-key" onclick="kbPress('o')">O</div><div class="kb-key" onclick="kbPress('p')">P</div>
+      <div class="kb-key" onclick="kbPress('ğ')">Ğ</div><div class="kb-key" onclick="kbPress('ü')">Ü</div>
+    </div>
+    <div class="kb-row">
+      <div class="kb-key" onclick="kbPress('a')">A</div><div class="kb-key" onclick="kbPress('s')">S</div>
+      <div class="kb-key" onclick="kbPress('d')">D</div><div class="kb-key" onclick="kbPress('f')">F</div>
+      <div class="kb-key" onclick="kbPress('g')">G</div><div class="kb-key" onclick="kbPress('h')">H</div>
+      <div class="kb-key" onclick="kbPress('j')">J</div><div class="kb-key" onclick="kbPress('k')">K</div>
+      <div class="kb-key" onclick="kbPress('l')">L</div><div class="kb-key" onclick="kbPress('ş')">Ş</div>
+      <div class="kb-key" onclick="kbPress('i')">İ</div>
+    </div>
+    <div class="kb-row">
+      <div class="kb-key" onclick="kbPress('z')">Z</div><div class="kb-key" onclick="kbPress('c')">C</div>
+      <div class="kb-key" onclick="kbPress('v')">V</div><div class="kb-key" onclick="kbPress('b')">B</div>
+      <div class="kb-key" onclick="kbPress('n')">N</div><div class="kb-key" onclick="kbPress('m')">M</div>
+      <div class="kb-key" onclick="kbPress('ö')">Ö</div><div class="kb-key" onclick="kbPress('ç')">Ç</div>
+      <div class="kb-key special" onclick="kbBackspace()">⌫</div>
+      <div class="kb-key enter-key" onclick="submitWord()">GİR</div>
+    </div>
   </div>
 </div>
 
@@ -599,7 +638,26 @@
     <div class="section-head">
       <div class="section-title">Envanterim</div>
     </div>
-    <div style="padding:0 .44rem;margin-bottom:.66rem;" id="profile-inventory"></div>
+    <div style="padding:0 .44rem;margin-bottom:.44rem;" id="profile-inventory"></div>
+
+    <!-- Biyografi -->
+    <div class="section-head">
+      <div class="section-title">Biyografi</div>
+      <div class="see-all" onclick="editBio()">✏️ Düzenle</div>
+    </div>
+    <div class="bio-text" id="profile-bio">Henüz bir biyografi eklenmemiş.</div>
+
+    <!-- Popülerlik -->
+    <div style="padding:0 .44rem;margin:.22rem 0 .44rem;">
+      <div class="popularity-badge" id="profile-popularity">⭐ 0 Popülerlik</div>
+    </div>
+
+    <!-- Alınan Hediyeler -->
+    <div class="section-head">
+      <div class="section-title">🎁 Alınan Hediyeler</div>
+      <div class="see-all" onclick="goScreen('screen-gifts')">Tümü</div>
+    </div>
+    <div style="padding:0 .44rem;margin-bottom:.66rem;display:flex;flex-wrap:wrap;gap:.22rem;" id="profile-gifts-showcase"></div>
   </div>
 
   <nav class="navbar">
@@ -1087,6 +1145,155 @@
       <button class="share-btn copy-link" onclick="copyShareLink()">🔗 Kopyala</button>
     </div>
     <button class="btn btn-secondary btn-full" style="margin:.33rem .44rem 0;" onclick="closeModal('share-modal')">Kapat</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — HEDİYE MAĞAZASI
+═══════════════════════════════════════════ -->
+<div id="screen-gifts" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">🎁 Hediyeler</div>
+    <div class="gem-chip" id="gifts-gems">💎 0</div>
+  </div>
+  <div class="tab-row" id="gifts-tabs">
+    <div class="tab active" onclick="switchGiftTab('send')">🎁 Gönder</div>
+    <div class="tab" onclick="switchGiftTab('received')">📬 Alınanlar</div>
+    <div class="tab" onclick="switchGiftTab('sent')">📤 Gönderilenler</div>
+  </div>
+  <div class="scroll-content" style="padding:0 .44rem;">
+    <div id="gifts-content" style="margin-top:.22rem;"></div>
+    <div style="height:.55rem;"></div>
+  </div>
+</div>
+<!-- Gift Send Modal -->
+<div class="modal-overlay" id="gift-send-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Hediye Gönder</div>
+    <div style="text-align:center;margin-bottom:.33rem;">
+      <div style="font-size:2rem;" id="gift-selected-icon">🌹</div>
+      <div style="font-size:.44rem;font-weight:800;color:var(--text);" id="gift-selected-name">Gül</div>
+      <div style="font-size:.33rem;color:var(--acc3);" id="gift-selected-price">💎 2</div>
+    </div>
+    <div style="margin-bottom:.33rem;">
+      <div class="input-label">Kime göndermek istiyorsun?</div>
+      <input type="text" class="input" id="gift-recipient-input" placeholder="Kullanıcı adı ara..."
+        oninput="searchGiftRecipient(this.value)" style="-webkit-user-select:text;user-select:text;">
+      <div id="gift-recipient-results" style="margin-top:.17rem;"></div>
+    </div>
+    <div style="display:flex;gap:.22rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('gift-send-modal')">İptal</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmSendGift()">🎁 Gönder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — OYUNCU PROFİLİ
+═══════════════════════════════════════════ -->
+<div id="screen-player-profile" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="history.back()">←</div>
+    <div class="topbar-logo">Profil</div>
+    <div class="icon-btn" onclick="openGiftForPlayer()">🎁</div>
+  </div>
+  <div class="scroll-content">
+    <div class="profile-header">
+      <span class="profile-avatar-big" id="pp-avatar">🦊</span>
+      <div class="profile-name" id="pp-username">Oyuncu</div>
+      <div class="profile-level">Seviye <span id="pp-level">1</span> · <span id="pp-rank" class="rank-badge rank-bronze">🥉 Bronz</span></div>
+      <div class="popularity-badge" style="margin-top:.22rem;" id="pp-popularity">⭐ 0 Popülerlik</div>
+      <div class="bio-text" id="pp-bio">Henüz biyografi yok.</div>
+      <div class="profile-actions-row">
+        <button class="profile-like-btn" id="pp-like-btn" onclick="likePlayerProfile()">❤️ Beğen</button>
+        <button class="btn btn-primary btn-sm" onclick="addFriendFromProfile()">➕ Arkadaş Ekle</button>
+        <button class="btn btn-secondary btn-sm" onclick="openGiftForPlayer()">🎁 Hediye</button>
+      </div>
+    </div>
+    <div class="stats-grid" style="margin:.44rem 0;">
+      <div class="stat-card"><div class="stat-val" id="pp-matches">0</div><div class="stat-lbl">Maç</div></div>
+      <div class="stat-card"><div class="stat-val" id="pp-wins">0</div><div class="stat-lbl">Kazanma</div></div>
+      <div class="stat-card"><div class="stat-val" id="pp-score">0</div><div class="stat-lbl">Puan</div></div>
+    </div>
+    <div class="section-head"><div class="section-title">Alınan Hediyeler</div></div>
+    <div id="pp-gifts-showcase" style="padding:0 .44rem;margin-bottom:.44rem;display:flex;flex-wrap:wrap;gap:.22rem;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN — KELİME ANLAM SİSTEMİ
+═══════════════════════════════════════════ -->
+<div id="screen-word-meaning" class="screen" style="flex-direction:column;">
+  <div class="topbar">
+    <div class="back-btn" onclick="goScreen('screen-home')">←</div>
+    <div class="topbar-logo">📚 Kelime Anlamı</div>
+    <div></div>
+  </div>
+  <div class="scroll-content" style="padding:.44rem;">
+    <div id="meaning-write-section">
+      <div style="text-align:center;margin-bottom:.33rem;padding:.44rem;background:var(--card);border:1.5px solid var(--border);border-radius:.66rem;">
+        <div style="font-size:.33rem;color:var(--muted);font-weight:700;margin-bottom:.17rem;">Bu kelimenin anlamını açıklar mısın?</div>
+        <div class="meaning-word-display" id="meaning-word-display">—</div>
+        <div style="font-size:.3rem;color:var(--dim);">Katkında için 🪙 coin kazanırsın</div>
+      </div>
+      <div class="word-meaning-card">
+        <textarea class="meaning-textarea" id="meaning-textarea"
+          placeholder="Bu kelimenin anlamını buraya yaz..." maxlength="300"
+          oninput="onMeaningInput(this)" style="-webkit-user-select:text;user-select:text;"></textarea>
+        <div class="char-counter" id="meaning-char-counter">0 / 300 (min 20 karakter)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.22rem;margin-top:.33rem;">
+        <button class="btn btn-primary btn-lg btn-full" id="meaning-submit-btn" onclick="submitWordMeaning()" disabled>
+          📝 Açıklamayı Gönder (+15 🪙)
+        </button>
+        <button class="btn btn-secondary btn-full" style="font-size:.44rem;" onclick="skipWordMeaning()">
+          Anlamını Bilmiyorum →
+        </button>
+      </div>
+    </div>
+    <div id="meaning-vote-section" style="display:none;">
+      <div style="text-align:center;margin-bottom:.33rem;padding:.44rem;background:var(--card);border:1.5px solid var(--border);border-radius:.66rem;">
+        <div style="font-size:.33rem;color:var(--muted);font-weight:700;margin-bottom:.17rem;">Bu açıklama doğru mu?</div>
+        <div class="meaning-word-display" id="vote-word-display">—</div>
+      </div>
+      <div class="word-meaning-card">
+        <div style="font-size:.44rem;color:var(--text);line-height:1.7;" id="vote-meaning-text">—</div>
+      </div>
+      <div class="meaning-vote-row">
+        <button class="vote-btn correct" onclick="voteWordMeaning(true)">✅ Doğru (+5 🪙)</button>
+        <button class="vote-btn wrong"   onclick="voteWordMeaning(false)">❌ Yanlış (+2 🪙)</button>
+      </div>
+      <button class="btn btn-secondary btn-full" style="margin-top:.33rem;" onclick="skipVote()">Emin Değilim →</button>
+    </div>
+    <div style="margin-top:.55rem;background:var(--card);border:1.5px solid var(--border);border-radius:.66rem;padding:.44rem;">
+      <div style="font-size:.36rem;font-weight:800;color:var(--text);margin-bottom:.22rem;">📊 Sözlük Durumu</div>
+      <div style="display:flex;justify-content:space-around;">
+        <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--p2);" id="dict-total-words">0</div><div style="font-size:.28rem;color:var(--muted);">Kelime</div></div>
+        <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--acc3);" id="dict-verified">0</div><div style="font-size:.28rem;color:var(--muted);">Doğrulandı</div></div>
+        <div style="text-align:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:800;color:var(--gold);" id="dict-my-contrib">0</div><div style="font-size:.28rem;color:var(--muted);">Katkım</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Oyun İçi Bildirim -->
+<div class="game-notification" id="game-notification"></div>
+
+<!-- Oyun İçi Arkadaş İsteği -->
+<div class="modal-overlay" id="ingame-friend-req-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:.33rem;">
+      <div style="font-size:1.2rem;" id="ifr-avatar">👤</div>
+      <div class="modal-title" id="ifr-title">Arkadaşlık İsteği</div>
+      <div style="font-size:.36rem;color:var(--muted);" id="ifr-name"></div>
+    </div>
+    <div style="display:flex;gap:.22rem;">
+      <button class="btn btn-danger"  style="flex:1;" onclick="rejectIngameFriendReq()">✕ Reddet</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="acceptIngameFriendReq()">✓ Kabul Et</button>
+    </div>
   </div>
 </div>
 
