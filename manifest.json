@@ -111,14 +111,23 @@
       "label": "Mağaza"
     }
   ],
-  "categories": ["games", "entertainment"],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "shortcuts": [
     {
       "name": "Hızlı Oyun",
       "short_name": "Oyna",
       "description": "Bot ile hemen oyna",
       "url": "/?mode=quick",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
-  ]
+  ],
+  "dir": "ltr"
 }
