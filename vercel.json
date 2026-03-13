@@ -1,5 +1,5 @@
 {
-  "rewrites": [
+  "rewrites": [ 
     { "source": "/((?!api/|\\.well-known/|icons/|styles/|src/).*)", "destination": "/index.html" }
   ],
   "headers": [
